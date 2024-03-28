@@ -11,9 +11,13 @@ from numpy.linalg import norm
 from torchvision.models import efficientnet_b0
 from torchvision.models.feature_extraction import create_feature_extractor
 import torchvision.transforms as T
+from dotenv import load_dotenv
 
+load_dotenv(verbose=True) # .env 파일로부터 환경변수 로드
 
 #url,key값 입력
+url = os.getenv('SUPABASE_URL')
+key = os.getenv('SUPABASE_KEY')
 supabase: Client = create_client(url, key)
 supabaseResponse = supabase.table('department').select("id","department_ko").execute().data
 department=[]
@@ -78,10 +82,6 @@ def save_user_info(user_id, department):
     data = {'kakao_id': user_id, 'department_id': department}
     response,count = supabase.table('user').upsert(data).execute()
     
-
-
-
-
 @app.route('/test', methods=['POST'])
 def test():
     params = request.json
