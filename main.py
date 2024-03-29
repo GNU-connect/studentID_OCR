@@ -81,6 +81,42 @@ def save_user_info(user_id, department):
     # 'users' 테이블에 데이터 삽입
     data = {'kakao_id': user_id, 'department_id': department}
     response,count = supabase.table('user').upsert(data).execute()
+
+# 서버 테스트 코드
+@app.route('/cafeteria-diet', methods=['POST'])
+def get_cafeteria_diet():
+    data = request.json
+    diet_content = '''
+[A코스/한식]
+쌀밥,어묵국,적어무조림,마늘쫑햄볶음,세발나무무침,배추김치,오렌지주스
+
+[B코스/일품]
+바지락칼국수,양파링튀김,단무지,배추김치,오렌지주스
+    '''
+
+    print(data)
+    # 기본 값은 '가좌캠퍼스'
+    campus = data['action']['detailParams'].get('sys_campus')
+    if campus is not None:
+        campus = campus.get('value')
+    diet_date = data['action']['detailParams'].get('sys_date')
+    if diet_date is not None:
+        diet_date = diet_date.get('origin')
+    diet_time = data['action']['detailParams'].get('sys_time')
+    if diet_time is not None:
+        diet_time = diet_time.get('value')
+
+    return {
+        "answer": {
+                "status": "normal",
+                "cafeteria_name": data['action']['params']['sys_cafeteria_name'],
+                "campus": campus if campus is not None else '가좌캠퍼스',
+                "diet_content": diet_content,
+                "diet_date": diet_date if diet_date is not None else '2023-03-29',
+                "diet_time": diet_time if diet_time is not None else '점심',
+                "image_url": "https://cf-ea.everytime.kr/attach/133/66414961/everytime-1711679608338.jpg?Expires=1711692207&Key-Pair-Id=APKAICU6XZKH23IGASFA&Signature=atL-wCR605e5SeGAcpVn1ksFUfRi2uty0snZf~psTpJN7~7a~OQFuXBRLVlFV-0vAqEF3mSeVUkQXq27r2fV~NxxZkUub8XmK6lnnY74DkgxALygMBZ6Fop4WFyjvpt2Tu8YvMmES4TC6Uvvsj4Zi1XvHb1lE5VefGxnv4fvytZ93cAOgvutK5yZlwrHu92DYXRjprNGzdD9frHA89eGAXz6ciVM1dat2wJF87EPj~NgTVdBike-~l7lDph1AlfqBfrquktJpYUEYNPY26swBPXMg61NwhTjQ1ktosiOBUMrKefMsnki8mINHmWteXpA8hYUH3wHpgKIymedysqvPA__"
+        }
+    }
     
 @app.route('/test', methods=['POST'])
 def test():
