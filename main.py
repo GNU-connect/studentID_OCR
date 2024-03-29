@@ -82,6 +82,39 @@ def save_user_info(user_id, department):
     data = {'kakao_id': user_id, 'department_id': department}
     response,count = supabase.table('user').upsert(data).execute()
 
+# 사용자 학과 정보로 캠퍼스 정보 조회
+def get_user_campus_info(user_id):
+    response = supabase.table('user') \
+    .select('department_id, department(college_id, college(campus_id, campus(campus_name_ko)))') \
+    .eq('kakao_id', user_id).execute().data[0]
+    print(response)
+    return {
+        'campus_id': response['department']['college']['campus_id'],
+        'campus_name_ko': response['department']['college']['campus']['campus_name_ko']
+    }
+
+@app.route('/cafeteria', methods=['POST'])
+def get_cafeteria():
+    data = request.json
+    user_id = data['userRequest']['user']['id']
+    campus_info = get_user_campus_info(user_id)
+    cafeteria_list = supabase.table('cafeteria').select('cafeteria_name_ko').eq('campus_id', campus_info['campus_id']).execute().data
+    cafeteria_names = [cafeteria['cafeteria_name_ko'] for cafeteria in cafeteria_list]
+    quick_replies = [{'label': cafeteria_name, 'action': 'message', 'messageText': cafeteria_name} for cafeteria_name in cafeteria_names]
+    return {
+        "version": "2.0",
+        "template": {
+            "outputs": [
+            {
+                "simpleText": {
+                "text": "학식 정보를 알려드릴게요. 어느 학식을 알려드릴까요?"
+                }
+            }
+            ],
+            "quickReplies": quick_replies
+        }
+}
+
 # 서버 테스트 코드
 @app.route('/cafeteria-diet', methods=['POST'])
 def get_cafeteria_diet():
@@ -94,9 +127,8 @@ def get_cafeteria_diet():
 바지락칼국수,양파링튀김,단무지,배추김치,오렌지주스
     '''
 
-    print(data)
     # 기본 값은 '가좌캠퍼스'
-    campus = data['action']['detailParams'].get('sys_campus')
+    campus = data['action']['detailParams'].get('sys_campus_name')
     if campus is not None:
         campus = campus.get('value')
     diet_date = data['action']['detailParams'].get('sys_date')
@@ -114,7 +146,8 @@ def get_cafeteria_diet():
                 "diet_content": diet_content,
                 "diet_date": diet_date if diet_date is not None else '2023-03-29',
                 "diet_time": diet_time if diet_time is not None else '점심',
-                "image_url": "https://cf-ea.everytime.kr/attach/133/66414961/everytime-1711679608338.jpg?Expires=1711692207&Key-Pair-Id=APKAICU6XZKH23IGASFA&Signature=atL-wCR605e5SeGAcpVn1ksFUfRi2uty0snZf~psTpJN7~7a~OQFuXBRLVlFV-0vAqEF3mSeVUkQXq27r2fV~NxxZkUub8XmK6lnnY74DkgxALygMBZ6Fop4WFyjvpt2Tu8YvMmES4TC6Uvvsj4Zi1XvHb1lE5VefGxnv4fvytZ93cAOgvutK5yZlwrHu92DYXRjprNGzdD9frHA89eGAXz6ciVM1dat2wJF87EPj~NgTVdBike-~l7lDph1AlfqBfrquktJpYUEYNPY26swBPXMg61NwhTjQ1ktosiOBUMrKefMsnki8mINHmWteXpA8hYUH3wHpgKIymedysqvPA__"
+                "good": 225,
+                "bad": 70
         }
     }
     
