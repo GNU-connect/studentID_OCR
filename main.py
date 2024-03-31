@@ -1,6 +1,6 @@
 from flask import Flask
 from flask import request
-from src.cafeteria.cafeteria import get_cafeteria_quick_replies
+from src.cafeteria.cafeteria import get_cafeteria_info
 import src.card_verification.verification as verification
 
 app = Flask(__name__)
@@ -9,20 +9,9 @@ app = Flask(__name__)
 def get_cafeteria():
     data = request.json
     user_id = data['userRequest']['user']['id']
-    quick_replies = get_cafeteria_quick_replies(user_id)
-    return {
-        "version": "2.0",
-        "template": {
-            "outputs": [
-            {
-                "simpleText": {
-                "text": "학식 정보를 알려드릴게요. 어느 학식을 알려드릴까요?"
-                }
-            }
-            ],
-            "quickReplies": quick_replies
-        }
-}
+    campus_id = data['action']['clientExtra']['sys_campus_id'] if 'sys_campus_id' in data['action']['clientExtra'] else None
+    response = get_cafeteria_info(user_id, campus_id)
+    return response
 
 # 서버 테스트 코드
 @app.route('/cafeteria-diet', methods=['POST'])
