@@ -2,6 +2,7 @@ from flask import Flask
 from flask import request
 from src.cafeteria.cafeteria import get_cafeteria_info
 import src.card_verification.verification as verification
+import json
 
 app = Flask(__name__)
 
@@ -11,13 +12,13 @@ def get_cafeteria():
     user_id = data['userRequest']['user']['id']
     campus_id = data['action']['clientExtra']['sys_campus_id'] if 'sys_campus_id' in data['action']['clientExtra'] else None
     response = get_cafeteria_info(user_id, campus_id)
+    print(json.dumps(response, ensure_ascii = False))
     return response
 
 # 서버 테스트 코드
 @app.route('/cafeteria-diet', methods=['POST'])
 def get_cafeteria_diet():
     data = request.json
-    print(data)
     diet_content = '''
 [A코스/한식]
 쌀밥,어묵국,적어무조림,마늘쫑햄볶음,세발나무무침,배추김치,오렌지주스

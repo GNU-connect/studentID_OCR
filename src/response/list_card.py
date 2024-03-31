@@ -28,7 +28,7 @@ class ListCard:
         return card_dict
 
 class ListItem:
-    def __init__(self, title, description, imageUrl, link=None, action=None, blockId=None, messageText=None, extra=None):
+    def __init__(self, title, imageUrl, link=None, action=None, blockId=None, messageText=None, extra=None, description=None):
         self.title = title
         self.description = description
         self.imageUrl = imageUrl
@@ -41,9 +41,10 @@ class ListItem:
     def to_dict(self):
         item_dict = {
             "title": self.title,
-            "description": self.description,
             "imageUrl": self.imageUrl
         }
+        if self.description:
+            item_dict["description"] = self.description
         if self.link:
             item_dict["link"] = self.link
         if self.action:

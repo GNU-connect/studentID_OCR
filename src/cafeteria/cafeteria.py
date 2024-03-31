@@ -24,7 +24,7 @@ def get_cafeteria_info(user_id, campus_id=None):
 
         for campus_info in campus_list:
             campus_id, campus_name_ko, thumbnail_url = campus_info
-            items.append(ListItem(campus_name_ko, "", thumbnail_url, 
+            items.append(ListItem(campus_name_ko, thumbnail_url, 
                                 action="block", 
                                 blockId=block_id,
                                 extra={"sys_campus_id": campus_id}
@@ -43,7 +43,7 @@ def get_cafeteria_info(user_id, campus_id=None):
         
         for cafeteria_info in cafeteria_list:
             campus_name_ko, cafeteria_name_ko, thumbnail_url = cafeteria_info
-            items.append(ListItem(cafeteria_name_ko, campus_name_ko, thumbnail_url, 
+            items.append(ListItem(title=cafeteria_name_ko, description=campus_name_ko, imageUrl=thumbnail_url, 
                                 action="message", 
                                 messageText=f"{campus_name_ko} {cafeteria_name_ko}"))
             
