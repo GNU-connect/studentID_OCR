@@ -1,7 +1,6 @@
 from src.utils.supabase import supabase
 from src.common.user import get_user_campus_info
 from src.response.list_card import ListCard, ListItem
-from src.response.basic_card import Card, Carousel, Thumbnail
 from src.response.button import Button
 
 def get_cafeteria_info(user_id, campus_id=None):

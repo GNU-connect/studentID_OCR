@@ -23,22 +23,3 @@ class Card:
         if self.description:
             item_dict["description"] = self.description
         return item_dict
-
-class Carousel:
-    def __init__(self, items):
-        self.items = items
-
-    def to_dict(self):
-        return {
-            "version": "2.0",
-            "template": {
-                "outputs": [
-                    {
-                        "carousel": {
-                            "type": "basicCard",
-                            "items": [item.to_dict() for item in self.items]
-                        }
-                    }
-                ]
-            }
-        }
