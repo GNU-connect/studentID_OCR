@@ -1,19 +1,10 @@
 from flask import Flask
 from flask import request
-from src.notice.notice import get_notice
 from src.cafeteria.cafeteria import get_cafeteria_info
 import src.card_verification.verification as verification
 import json
 
 app = Flask(__name__)
-
-@app.route('/department-notice', methods=['POST'])
-def get_department_notice():
-    data = request.json
-    user_id = data['userRequest']['user']['id']
-    response = get_notice(user_id)
-    print(json.dumps(response, ensure_ascii = False))
-    return response
 
 @app.route('/cafeteria', methods=['POST'])
 def get_cafeteria():
