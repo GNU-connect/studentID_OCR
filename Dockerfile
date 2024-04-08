@@ -4,8 +4,14 @@ FROM python:3.11
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     libtesseract-dev \
+    tesseract-ocr-script-hang \
+    tesseract-ocr-script-hang-vert \
+    tesseract-ocr-script-kore \
+    tesseract-ocr-script-kore-vert \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
 
 # Configure Poetry
 ENV POETRY_VERSION=1.8.2
