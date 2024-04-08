@@ -24,7 +24,7 @@ ENV PATH="${PATH}:${POETRY_VENV}/bin"
 WORKDIR /app
 
 COPY poetry.lock pyproject.toml ./
-RUN poetry install
+RUN poetry install --default-timeout=1000
 
 COPY . /app
 EXPOSE 5000
