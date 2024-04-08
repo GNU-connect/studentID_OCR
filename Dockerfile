@@ -24,7 +24,13 @@ ENV PATH="${PATH}:${POETRY_VENV}/bin"
 WORKDIR /app
 
 COPY poetry.lock pyproject.toml ./
-RUN poetry install --default-timeout=1000
+
+# POETRY_REQUESTS_TIMEOUT 환경 변수를 설정하여 요청 타임아웃을 조정합니다.
+ENV POETRY_REQUESTS_TIMEOUT=600
+
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-dev
+
 
 COPY . /app
 EXPOSE 5000
