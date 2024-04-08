@@ -3,7 +3,7 @@ from flask import request
 from src.cafeteria.cafeteria import get_cafeteria_info
 import src.card_verification.verification as verification
 import json
-
+import os
 app = Flask(__name__)
 
 @app.route('/cafeteria', methods=['POST'])
@@ -19,6 +19,7 @@ def get_cafeteria():
 def post_verify_mobile_card():
     params = request.json
     result = verification.verify_user_mobile_card(params)
+    print(result)
     return result
 
 if __name__ == '__main__':

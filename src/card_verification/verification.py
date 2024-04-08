@@ -8,18 +8,21 @@ import requests
 from PIL import Image
 from torchvision.models import efficientnet_b0
 from torchvision.models.feature_extraction import create_feature_extractor
+import os
+import json
 
 supabaseResponse = supabase().table('department').select("id","department_ko").execute().data
 department=[]
 for i in supabaseResponse:
     department.append(i['department_ko'])
 
+
 # EfficientNet 모델 불러오기
 model = efficientnet_b0(weights=None)
 model = create_feature_extractor(model, return_nodes={'avgpool': 'avgpool'})
 model.eval()
 
-def img_ocr(img,filename='test'):
+def img_ocr(img):
     custom_configs=[r'--oem 1 --psm 4',r'--oem 3 --psm 6',r'--oem 1 --psm 3']
     founded=False
     for i in range(len(custom_configs)):
@@ -33,10 +36,8 @@ def img_ocr(img,filename='test'):
         if founded:
             break
     if founded:
-        print(f'학과:{founded_dept} , 파일명:{filename}')
         return founded_dept
     else:
-        print(f'학과 발견 불가 , 파일명:{filename}')
         return False
 
 # 이미지 로드 및 전처리 함수
@@ -70,16 +71,19 @@ def save_user_info(user_id, department):
     response,count = supabase().table('user').upsert(data).execute()
 
 def verify_user_mobile_card(params):
+    if json.loads(params['value']['resolved'])['imageQuantity'] != '1':
+        return '개수오류'
     image_url=params['value']['origin'][5:-1]
     userID=params['user']['id']
     userID = int(userID, 16)
     response = requests.get(image_url)
     if response.status_code == 200:
-        with open('temp/downloaded_image.jpg', 'wb') as f:
+        file_name = f"temp/{userID}.jpg"
+        with open(file_name, 'wb') as f:
             f.write(response.content)
     else:
         pass
-    img = Image.open('temp/downloaded_image.jpg')
+    img = Image.open(file_name)
     dept=img_ocr(img)
     deptID = None
     for row in supabaseResponse:
@@ -87,7 +91,8 @@ def verify_user_mobile_card(params):
             deptID = row['id']
             break
     
-    similarity=capture_probability('test.jpg','temp/downloaded_image.jpg')
+    similarity=capture_probability('temp/test.jpg',file_name)
     if dept!=False and similarity>0.84:
         save_user_info(userID,deptID)
-    return 'True'
+    os.remove(file_name)
+    return [userID,deptID]
