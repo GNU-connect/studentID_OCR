@@ -76,7 +76,6 @@ def verify_user_mobile_card(params):
     image_url=params['value']['origin'][5:-1]
     userID=params['user']['id']
     response = requests.get(image_url)
-    print(response)
     if response.status_code == 200:
         file_name = f"temp/{userID}.jpg"
         with open(file_name, 'wb') as f:
@@ -85,7 +84,7 @@ def verify_user_mobile_card(params):
         pass
     img = Image.open(file_name)
     dept=img_ocr(img)
-    print(dept)
+    print(f"추출 학과 정보: {dept}")
     deptID = None
     for row in supabaseResponse:
         if row['department_ko'] == dept:
