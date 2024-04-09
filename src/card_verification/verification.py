@@ -29,7 +29,7 @@ def img_ocr(img):
         texts = pytesseract.image_to_string(img, lang='kor', config=custom_configs[i])
         founded_dept=''
         text = texts.split('\n')
-        print(text.strip())
+        print(text)
     if founded:
         return founded_dept
     else:
