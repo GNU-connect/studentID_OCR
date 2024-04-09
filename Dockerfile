@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
 
 # Tesseract 언어팩(kor) 다운로드 및 설치
 RUN mkdir -p /usr/share/tesseract-ocr/4.00/tessdata/ \
-    && wget -O /usr/share/tesseract-ocr/4.00/tessdata/kor.traineddata https://github.com/tesseract-ocr/tessdata/raw/master/kor.traineddata
+    && wget -O /usr/share/tesseract-ocr/4.00/tessdata/kor.traineddata https://github.com/tesseract-ocr/tessdata/blob/main/kor.traineddata
 
 # Configure Poetry
 ENV POETRY_VERSION=1.8.2
