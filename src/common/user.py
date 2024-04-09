@@ -13,7 +13,7 @@ def get_user_campus_info(user_id):
     }
 
 # 사용자 아이디로 학과 정보 조회
-def get_user_department_info(user_id):
+def get_user_department_info():
     response = supabase().table('kakao-user') \
     .select('department_id, department(department_ko, college(college_en)))').execute().data
     return response[0]

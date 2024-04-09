@@ -85,6 +85,7 @@ def verify_user_mobile_card(params):
         pass
     img = Image.open(file_name)
     dept=img_ocr(img)
+    print(dept)
     deptID = None
     for row in supabaseResponse:
         if row['department_ko'] == dept:
