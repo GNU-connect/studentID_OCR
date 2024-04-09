@@ -26,7 +26,8 @@ def img_ocr(img):
     custom_configs=[r'--oem 1 --psm 4',r'--oem 3 --psm 6',r'--oem 1 --psm 3']
     for i in range(len(custom_configs)):
         texts = pytesseract.image_to_string(img, lang='kor', config=custom_configs[i])
-        text_list = texts.split('\n').map(lambda x: x.strip())
+        text_list = texts.split('\n')
+        print(text_list)
         for text in text_list:
             if text in departments:
                 founded_dept=text
