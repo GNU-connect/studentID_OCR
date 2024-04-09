@@ -30,6 +30,7 @@ def img_ocr(img):
         
         for text in text_list:
             text = text.strip()
+            print(text)
             if text in departments:
                 founded_dept=text
                 return founded_dept
