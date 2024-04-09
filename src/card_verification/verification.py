@@ -67,14 +67,15 @@ def capture_probability(original_image_path, test_image_path):
 # 데이터베이스에 사용자 정보 저장
 def save_user_info(user_id, department):
     # 'users' 테이블에 데이터 삽입
-    data = {'id': user_id, 'department_id': department}
-    response,count = supabase().table('kakao-user').upsert(data).execute()
+    data = {'kakao_id': user_id, 'department_id': department}
+    response,count = supabase().table('user').upsert(data).execute()
 
 def verify_user_mobile_card(params):
     if json.loads(params['value']['resolved'])['imageQuantity'] != '1':
         return '개수오류'
     image_url=params['value']['origin'][5:-1]
     userID=params['user']['id']
+    userID = int(userID, 16)
     response = requests.get(image_url)
     if response.status_code == 200:
         file_name = f"temp/{userID}.jpg"
@@ -84,7 +85,6 @@ def verify_user_mobile_card(params):
         pass
     img = Image.open(file_name)
     dept=img_ocr(img)
-    print(f"추출 학과 정보: {dept}")
     deptID = None
     for row in supabaseResponse:
         if row['department_ko'] == dept:
