@@ -2,7 +2,7 @@ FROM python:3.11
 
 # Python 패키지 설치
 COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt --default-timeout=6000
 
 # 필요한 패키지 설치
 RUN apt-get update && apt-get install -y \
@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
 RUN mkdir -p /usr/share/tesseract-ocr/4.00/tessdata/ \
     && curl -L -o /usr/share/tesseract-ocr/4.00/tessdata/kor.traineddata https://github.com/tesseract-ocr/tessdata/raw/main/kor.traineddata
 
-ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata/kor.traineddata
+ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
 
 WORKDIR /app
 

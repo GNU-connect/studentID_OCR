@@ -68,7 +68,7 @@ def capture_probability(original_image_path, test_image_path):
 def save_user_info(user_id, department):
     # 'users' 테이블에 데이터 삽입
     data = {'kakao_id': user_id, 'department_id': department}
-    response,count = supabase().table('user').upsert(data).execute()
+    response,count = supabase().table('kakao-user').upsert(data).execute()
 
 def verify_user_mobile_card(params):
     if json.loads(params['value']['resolved'])['imageQuantity'] != '1':
