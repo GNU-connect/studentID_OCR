@@ -24,16 +24,14 @@ model.eval()
 
 def img_ocr(img):
     custom_configs=[r'--oem 1 --psm 4',r'--oem 3 --psm 6',r'--oem 1 --psm 3']
-    founded=False
     for i in range(len(custom_configs)):
         texts = pytesseract.image_to_string(img, lang='kor', config=custom_configs[i])
-        founded_dept=''
-        text = texts.split('\n')
-        print(text)
-    if founded:
-        return founded_dept
-    else:
-        return False
+        text_list = texts.split('\n').map(lambda x: x.strip())
+        for text in text_list:
+            if text in departments:
+                founded_dept=text
+                return founded_dept
+    return False
 
 # 이미지 로드 및 전처리 함수
 def image_preprocess(image_path):
