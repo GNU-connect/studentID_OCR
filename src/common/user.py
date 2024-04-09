@@ -4,7 +4,7 @@ from src.utils.supabase import supabase
 def get_user_campus_info(user_id):
     response = supabase().table('kakao-user') \
     .select('department_id, department(college_id, college(campus_id, campus(campus_name_ko)))') \
-    .eq('kakao_id', user_id).execute().data
+    .eq('id', user_id).execute().data
     if len(response) == 0:
         return None
     return {
