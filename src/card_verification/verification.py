@@ -29,8 +29,8 @@ def img_ocr(img):
         texts = pytesseract.image_to_string(img, lang='kor', config=custom_configs[i])
         founded_dept=''
         text_parts=texts.split()
+        print(text_parts)
         for part in text_parts:
-            print(part)
             if part in department:
                 founded_dept=part
                 founded=True
