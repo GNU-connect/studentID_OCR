@@ -28,14 +28,14 @@ def img_ocr(img):
     for i in range(len(custom_configs)):
         texts = pytesseract.image_to_string(img, lang='kor', config=custom_configs[i])
         founded_dept=''
-        text_parts=texts.split()
-        print(text_parts)
-        for part in text_parts:
-            if part in department:
-                founded_dept=part
+        combined_text = ''.join(texts)
+
+        for department in department:
+            if department in combined_text:
+                founded_dept=department
                 founded=True
-        if founded:
-            break
+            if founded:
+                break
     if founded:
         return founded_dept
     else:
@@ -76,7 +76,6 @@ def verify_user_mobile_card(params):
         return '개수오류'
     image_url=params['value']['origin'][5:-1]
     userID=params['user']['id']
-    userID = int(userID, 16)
     response = requests.get(image_url)
     if response.status_code == 200:
         file_name = f"temp/{userID}.jpg"
