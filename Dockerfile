@@ -4,8 +4,14 @@ FROM python:3.11
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     libtesseract-dev \
+    tesseract-ocr-script-hang \
+    tesseract-ocr-script-hang-vert \
+    tesseract-ocr-script-kore \
+    tesseract-ocr-script-kore-vert \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
 
 # Configure Poetry
 ENV POETRY_VERSION=1.8.2
@@ -24,7 +30,13 @@ ENV PATH="${PATH}:${POETRY_VENV}/bin"
 WORKDIR /app
 
 COPY poetry.lock pyproject.toml ./
-RUN poetry install --default-timeout=1000
+
+# POETRY_REQUESTS_TIMEOUT 환경 변수를 설정하여 요청 타임아웃을 조정합니다.
+ENV POETRY_REQUESTS_TIMEOUT=600
+
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-dev
+
 
 COPY . /app
 EXPOSE 5000
