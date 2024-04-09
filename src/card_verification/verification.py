@@ -94,4 +94,5 @@ def verify_user_mobile_card(params):
     if dept!=False and similarity>0.84:
         save_user_info(userID,deptID)
     os.remove(file_name)
+    print(userID, deptID)
     return [userID,deptID]
