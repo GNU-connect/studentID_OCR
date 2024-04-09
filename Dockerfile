@@ -1,6 +1,10 @@
 FROM python:3.11
 
-# tesseract-ocr, libtesseract-dev 설치
+# Python 패키지 설치
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+# 필요한 패키지 설치
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     libtesseract-dev \
@@ -9,32 +13,14 @@ RUN apt-get update && apt-get install -y \
 
 # Tesseract 언어팩(kor) 다운로드 및 설치
 RUN mkdir -p /usr/share/tesseract-ocr/4.00/tessdata/ \
-    && wget -O /usr/share/tesseract-ocr/4.00/tessdata/kor.traineddata https://github.com/tesseract-ocr/tessdata/blob/main/kor.traineddata
+    && curl -L -o /usr/share/tesseract-ocr/4.00/tessdata/kor.traineddata https://github.com/tesseract-ocr/tessdata/raw/main/kor.traineddata
 
-# Configure Poetry
-ENV POETRY_VERSION=1.8.2
-ENV POETRY_HOME=/opt/poetry
-ENV POETRY_VENV=/opt/poetry-venv
-ENV POETRY_CACHE_DIR=/opt/.cache
-
-# Install poetry separated from system interpreter
-RUN python3 -m venv $POETRY_VENV \
-	&& $POETRY_VENV/bin/pip install -U pip setuptools \
-	&& $POETRY_VENV/bin/pip install poetry==${POETRY_VERSION}
-
-# Add `poetry` to PATH
-ENV PATH="${PATH}:${POETRY_VENV}/bin"
+ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata/kor.traineddata
 
 WORKDIR /app
 
-COPY poetry.lock pyproject.toml ./
+# 애플리케이션 코드 복사
+COPY . .
 
-# POETRY_REQUESTS_TIMEOUT 환경 변수를 설정하여 요청 타임아웃을 조정합니다.
-ENV POETRY_REQUESTS_TIMEOUT=6000
-
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-dev
-
-COPY . /app
 EXPOSE 5000
-CMD [ "poetry", "run", "python", "-m", "flask", "run", "--host=0.0.0.0", "--debug" ]
+CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--debug"]
