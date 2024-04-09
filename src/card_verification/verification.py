@@ -75,7 +75,6 @@ def verify_user_mobile_card(params):
         return '개수오류'
     image_url=params['value']['origin'][5:-1]
     userID=params['user']['id']
-    userID = int(userID, 16)
     response = requests.get(image_url)
     if response.status_code == 200:
         file_name = f"temp/{userID}.jpg"
