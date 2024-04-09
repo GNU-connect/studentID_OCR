@@ -12,9 +12,9 @@ import os
 import json
 
 supabaseResponse = supabase().table('department').select("id","department_ko").execute().data
-department=[]
+departments=[]
 for i in supabaseResponse:
-    department.append(i['department_ko'])
+    departments.append(i['department_ko'])
 
 
 # EfficientNet 모델 불러오기
@@ -31,7 +31,7 @@ def img_ocr(img):
         combined_text = ' '.join(text.strip() for text in texts if text.strip())
         print(combined_text)
 
-        for department in department:
+        for department in departments:
             if department in combined_text:
                 founded_dept=department
                 founded=True
