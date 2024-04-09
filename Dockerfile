@@ -4,14 +4,12 @@ FROM python:3.11
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     libtesseract-dev \
-    tesseract-ocr-script-hang \
-    tesseract-ocr-script-hang-vert \
-    tesseract-ocr-script-kore \
-    tesseract-ocr-script-kore-vert \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
+# Tesseract 언어팩(kor) 다운로드 및 설치
+RUN mkdir -p /usr/share/tesseract-ocr/4.00/tessdata/ \
+    && wget -O /usr/share/tesseract-ocr/4.00/tessdata/kor.traineddata https://github.com/tesseract-ocr/tessdata/raw/master/kor.traineddata
 
 # Configure Poetry
 ENV POETRY_VERSION=1.8.2
@@ -37,7 +35,6 @@ ENV POETRY_REQUESTS_TIMEOUT=600
 RUN poetry config virtualenvs.create false \
     && poetry install --no-dev
 
-
 COPY . /app
 EXPOSE 5000
-CMD [ "poetry", "run", "python", "-m", "flask", "run", "--host=0.0.0.0" ]
+CMD [ "poetry", "run", "python", "-m", "flask", "run", "--host=0.0.0.0", "--debug" ]
