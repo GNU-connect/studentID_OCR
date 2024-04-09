@@ -16,6 +16,7 @@ RUN mkdir -p /usr/share/tesseract-ocr/4.00/tessdata/ \
     && curl -L -o /usr/share/tesseract-ocr/4.00/tessdata/kor.traineddata https://github.com/tesseract-ocr/tessdata/raw/main/kor.traineddata
 
 ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
+ENV PYTHONUNBUFFERED 1
 
 WORKDIR /app
 

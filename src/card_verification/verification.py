@@ -27,6 +27,7 @@ def img_ocr(img):
     founded=False
     for i in range(len(custom_configs)):
         texts = pytesseract.image_to_string(img, lang='kor', config=custom_configs[i])
+        print(texts)
         founded_dept=''
         text_parts=texts.split()
         for part in text_parts:
@@ -77,7 +78,6 @@ def verify_user_mobile_card(params):
     userID=params['user']['id']
     userID = int(userID, 16)
     response = requests.get(image_url)
-    print(response)
     if response.status_code == 200:
         file_name = f"temp/{userID}.jpg"
         with open(file_name, 'wb') as f:
