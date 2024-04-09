@@ -30,7 +30,7 @@ WORKDIR /app
 COPY poetry.lock pyproject.toml ./
 
 # POETRY_REQUESTS_TIMEOUT 환경 변수를 설정하여 요청 타임아웃을 조정합니다.
-ENV POETRY_REQUESTS_TIMEOUT=600
+ENV POETRY_REQUESTS_TIMEOUT=6000
 
 RUN poetry config virtualenvs.create false \
     && poetry install --no-dev
