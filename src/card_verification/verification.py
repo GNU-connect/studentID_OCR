@@ -15,7 +15,8 @@ import re
 supabaseResponse = supabase().table('department').select("id","department_ko").execute().data
 departments=[]
 for i in supabaseResponse:
-    departments.append(i['department_ko'])
+    department_ko = i['department_ko'].replace(' ', '')
+    departments.append(department_ko)
 
 
 # EfficientNet 모델 불러오기
