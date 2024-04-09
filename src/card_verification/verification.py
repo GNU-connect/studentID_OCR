@@ -76,6 +76,7 @@ def verify_user_mobile_card(params):
     image_url=params['value']['origin'][5:-1]
     userID=params['user']['id']
     response = requests.get(image_url)
+    print(response)
     if response.status_code == 200:
         file_name = f"temp/{userID}.jpg"
         with open(file_name, 'wb') as f:
@@ -94,5 +95,4 @@ def verify_user_mobile_card(params):
     if dept!=False and similarity>0.84:
         save_user_info(userID,deptID)
     os.remove(file_name)
-    print(userID, deptID)
     return [userID,deptID]
