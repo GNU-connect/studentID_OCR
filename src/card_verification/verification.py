@@ -77,6 +77,7 @@ def verify_user_mobile_card(params):
     userID=params['user']['id']
     userID = int(userID, 16)
     response = requests.get(image_url)
+    print(response)
     if response.status_code == 200:
         file_name = f"temp/{userID}.jpg"
         with open(file_name, 'wb') as f:

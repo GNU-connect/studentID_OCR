@@ -12,7 +12,6 @@ def get_cafeteria():
     user_id = data['userRequest']['user']['id']
     campus_id = data['action']['clientExtra']['sys_campus_id'] if 'sys_campus_id' in data['action']['clientExtra'] else None
     response = get_cafeteria_info(user_id, campus_id)
-    print(json.dumps(response, ensure_ascii = False))
     return response
     
 @app.route('/verify-mobile-card', methods=['POST'])
