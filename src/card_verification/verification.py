@@ -10,6 +10,7 @@ from torchvision.models import efficientnet_b0
 from torchvision.models.feature_extraction import create_feature_extractor
 import os
 import json
+import re
 
 supabaseResponse = supabase().table('department').select("id","department_ko").execute().data
 departments=[]
@@ -29,7 +30,7 @@ def img_ocr(img):
         text_list = texts.split('\n')
         
         for text in text_list:
-            text = text.strip()
+            text = re.sub(r'\s+', '', text)
             print(text)
             if text in departments:
                 founded_dept=text
