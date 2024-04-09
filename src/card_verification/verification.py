@@ -28,7 +28,7 @@ def img_ocr(img):
     for i in range(len(custom_configs)):
         texts = pytesseract.image_to_string(img, lang='kor', config=custom_configs[i])
         founded_dept=''
-        combined_text = ''.join(texts)
+        combined_text = ' '.join(text.strip() for text in texts if text.strip())
         print(combined_text)
 
         for department in department:
