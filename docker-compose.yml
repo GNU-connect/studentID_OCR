@@ -1,12 +1,13 @@
 version: "3.8"
 services:
   backend_flask_server:
+    build: .
     image: dongho18/connect-gnu-flask:latest
     container_name: backend_flask_server
     ports:
       - "5000:5000"
     volumes:
-      - /backend_flask_server:/app
+      - .:/app
     restart: unless-stopped
   jenkins:
     image: jenkins/jenkins:lts
