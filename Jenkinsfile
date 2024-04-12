@@ -3,7 +3,7 @@ node {
 
     withCredentials([
         [$class: 'UsernamePasswordMultiBinding',
-         credentialsId: 'docker-hub',
+         credentialsId: 'docker-hub-flask',
          usernameVariable: 'DOCKER_USER_ID', 
          passwordVariable: 'DOCKER_USER_PASSWORD']
     ]) {
