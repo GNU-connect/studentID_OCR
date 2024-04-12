@@ -8,9 +8,8 @@ services:
       - "5000:5000"
     volumes:
       - .:/app
-    networks:
-      - host
     restart: unless-stopped
+    network_mode: host
   jenkins:
     image: jenkins/jenkins:latest
     container_name: jenkins
@@ -27,10 +26,3 @@ services:
       - /usr/bin/docker:/usr/bin/docker
       - /usr/local/lib/docker/cli-plugins/docker-compose:/usr/local/bin/docker-compose
     restart: unless-stopped
-    networks:
-      - host
-
-networks:
-  host:
-    name: host
-    external: true
