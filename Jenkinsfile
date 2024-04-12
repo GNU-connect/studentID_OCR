@@ -1,5 +1,5 @@
 node {
-    git poll: true, url: 'https://github.com/GNU-connect/studentID_OCR.git'
+    git branch: 'main', git poll: true, url: 'https://github.com/GNU-connect/studentID_OCR.git'
 
     withCredentials([
         [$class: 'UsernamePasswordMultiBinding',
