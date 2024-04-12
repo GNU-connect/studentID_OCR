@@ -15,7 +15,7 @@ RUN mkdir -p /usr/share/tesseract-ocr/4.00/tessdata/ \
 
 # Python 패키지 설치
 COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt --default-timeout=6000
+RUN pip3 install --no-cache-dir -r requirements.txt --default-timeout=600
 
 # 환경 변수 설정
 ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
