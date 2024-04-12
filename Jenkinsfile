@@ -8,7 +8,7 @@ node {
          passwordVariable: 'DOCKER_USER_PASSWORD']
     ]) {
         stage('Pull') {
-            git 'https://github.com/GNU-connect/studentID_OCR.git' 
+            git branch: 'main', url: 'https://github.com/GNU-connect/studentID_OCR.git' 
         }
 
         stage('Unit Test') {
