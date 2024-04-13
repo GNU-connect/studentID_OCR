@@ -9,7 +9,6 @@ services:
     volumes:
       - .:/app
     restart: unless-stopped
-    network_mode: host
   jenkins:
     image: jenkins/jenkins:latest
     container_name: jenkins
