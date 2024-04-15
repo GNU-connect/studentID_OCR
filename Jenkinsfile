@@ -16,7 +16,7 @@ node {
         }
 
         stage('Build') {
-            sh(script: 'docker-compose build')
+            sh(script: 'docker-compose build app')
         }
 
         stage('Tag') {
@@ -30,6 +30,10 @@ node {
             sh(script: 'docker login -u ${DOCKER_USER_ID} -p ${DOCKER_USER_PASSWORD}') 
             sh(script: 'docker push ${DOCKER_USER_ID}/connect-gnu-flask:${BUILD_NUMBER}') 
             sh(script: 'docker push ${DOCKER_USER_ID}/connect-gnu-flask:latest')
+        }
+
+        stage('Deploy') {
+            sh(script: 'docker-compose up -d production')
         }
     } 
 }

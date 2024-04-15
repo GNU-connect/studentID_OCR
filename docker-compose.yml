@@ -1,8 +1,11 @@
 version: "3.8"
 services:
-  backend_flask_server:
+  app:
     build: .
-    image: dongho18/connect-gnu-flask:latest
+    image: dongho18/connect-gnu-flask
+  production:
+    build: .
+    image: dongho18/connect-gnu-flask:${BUILD_NUMBER}
     container_name: backend_flask_server
     ports:
       - "5000:5000"
