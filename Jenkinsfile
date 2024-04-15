@@ -29,10 +29,11 @@ node {
         stage('Push') {
             sh(script: 'docker login -u ${DOCKER_USER_ID} -p ${DOCKER_USER_PASSWORD}') 
             sh(script: 'docker push ${DOCKER_USER_ID}/connect-gnu-flask:${BUILD_NUMBER}') 
+            sh(script: 'docker push ${DOCKER_USER_ID}/connect-gnu-flask:latest')
         }
 
         stage('Deploy') {
-            sh(script: 'docker-compose up -d backend_flask_server') 
+            sh(script: 'docker-compose stop backend_flask_server && docker-compose rm -f backend_flask_server && docker-compose up -d backend_flask_server') 
         }
     } 
 }
