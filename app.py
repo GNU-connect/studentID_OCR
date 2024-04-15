@@ -6,7 +6,7 @@ import json
 import os
 app = Flask(__name__)
 
-@app.route('/cafeteria', methods=['POST'])
+@app.route('/api/cafeteria', methods=['POST'])
 def get_cafeteria():
     data = request.json
     user_id = data['userRequest']['user']['id']
@@ -14,7 +14,7 @@ def get_cafeteria():
     response = get_cafeteria_info(user_id, campus_id)
     return response
     
-@app.route('/verify-mobile-card', methods=['POST'])
+@app.route('/api/verify-mobile-card', methods=['POST'])
 def post_verify_mobile_card():
     params = request.json
     result = verification.verify_user_mobile_card(params)
