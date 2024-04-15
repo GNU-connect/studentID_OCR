@@ -33,7 +33,7 @@ node {
         }
 
         stage('Deploy') {
-            sh(script: 'docker-compose stop backend_flask_server && docker-compose rm -f backend_flask_server && docker-compose up -d backend_flask_server') 
+            sh(script: 'docker-compose down && docker-compose up -d backend_flask_server') 
         }
     } 
 }
