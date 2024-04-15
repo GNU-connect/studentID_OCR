@@ -31,9 +31,5 @@ node {
             sh(script: 'docker push ${DOCKER_USER_ID}/connect-gnu-flask:${BUILD_NUMBER}') 
             sh(script: 'docker push ${DOCKER_USER_ID}/connect-gnu-flask:latest')
         }
-
-        stage('Deploy') {
-            sh(script: 'docker-compose up -d')
-        }
     } 
 }
