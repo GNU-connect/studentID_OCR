@@ -16,7 +16,7 @@ node {
         }
 
         stage('Build') {
-            sh(script: 'docker-compose build backend_flask_server')
+            sh(script: 'docker-compose build')
         }
 
         stage('Tag') {
@@ -33,14 +33,7 @@ node {
         }
 
         stage('Deploy') {
-            script {
-                // 현재 실행 중인 컨테이너 중지 및 제거
-                sh 'docker-compose stop backend_flask_server'
-                sh 'docker-compose rm -f backend_flask_server'
-                
-                // 새로운 컨테이너 시작
-                sh 'docker-compose up -d backend_flask_server'
-            }
+            sh(script: 'docker-compose up -d')
         }
     } 
 }
