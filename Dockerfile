@@ -27,4 +27,7 @@ COPY . .
 
 EXPOSE 5000
 
-CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--debug"]
+# flask debug 모드로 실행
+
+
+CMD ["python", "app.py"]
