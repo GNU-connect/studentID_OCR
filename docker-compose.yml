@@ -4,7 +4,6 @@ services:
     build: .
     image: dongho18/connect-gnu-flask
   production:
-    build: .
     image: dongho18/connect-gnu-flask:${BUILD_NUMBER}
     container_name: backend_flask_server
     ports:
