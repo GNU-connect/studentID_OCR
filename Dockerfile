@@ -30,4 +30,4 @@ EXPOSE 5000
 # flask debug 모드로 실행
 
 
-CMD ["python", "app.py"]
+CMD ["ls"]
