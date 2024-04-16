@@ -35,8 +35,8 @@ node {
         stage('Create .env file') {
             sh '''
                 touch .env
-                echo "SUPABASE_URL=${env.SUPABASE_URL}" >> .env
-                echo "SUPABASE_KEY=${env.SUPABASE_KEY}" >> .env
+                echo "SUPABASE_URL=${SUPABASE_URL}" >> .env
+                echo "SUPABASE_KEY=${SUPABASE_KEY}" >> .env
             '''
         }
 
