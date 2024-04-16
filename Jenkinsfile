@@ -16,7 +16,7 @@ node {
         }
 
         stage('Build') {
-            sh(script: 'docker-compose build app')
+            sh(script: 'docker-compose build backend_flask_server')
         }
 
         stage('Tag') {
@@ -33,7 +33,8 @@ node {
         }
 
         stage('Deploy') {
-            sh(script: 'docker-compose up -d production')
+            sh(script: 'docker-compose down')
+            sh(script: 'docker-compose up -d backend_flask_server')
         }
     } 
 }
