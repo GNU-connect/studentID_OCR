@@ -32,6 +32,14 @@ node {
             sh(script: 'docker push ${DOCKER_USER_ID}/connect-gnu-flask:latest')
         }
 
+        stage('Create .env file') {
+            sh '''
+                touch .env
+                echo "SUPABASE_URL=${env.SUPABASE_URL}" >> .env
+                echo "SUPABASE_KEY=${env.SUPABASE_KEY}" >> .env
+            '''
+        }
+
         stage('Deploy') {
             sh(script: 'docker-compose down')
             sh(script: 'docker-compose up -d backend_flask_server')
