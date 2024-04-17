@@ -13,6 +13,7 @@ services:
       - SUPABASE_KEY=${SUPABASE_KEY}
     depends_on:
       - nginx
+      - jenkins
   jenkins:
     image: jenkins/jenkins:latest
     container_name: jenkins
