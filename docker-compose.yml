@@ -11,6 +11,8 @@ services:
     environment:
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_KEY=${SUPABASE_KEY}
+    depends_on:
+      - nginx
   jenkins:
     image: jenkins/jenkins:latest
     container_name: jenkins
@@ -32,8 +34,5 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./nginx
-    depends_on:
-      - backend_flask_server
-      - jenkins
     ports:
       - "80:80"
