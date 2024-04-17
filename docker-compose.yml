@@ -8,6 +8,9 @@ services:
     volumes:
       - .:/code
     restart: unless-stopped
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
   jenkins:
     image: jenkins/jenkins:latest
     container_name: jenkins
