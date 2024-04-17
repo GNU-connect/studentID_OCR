@@ -32,5 +32,8 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./nginx
+    depends_on:
+      - backend_flask_server
+      - jenkins
     ports:
       - "80:80"

@@ -34,7 +34,7 @@ node {
 
         stage('Deploy') {
             sh(script: 'docker-compose down')
-            sh(script: 'docker-compose up -d backend_flask_server')
+            sh(script: 'docker-compose up -d')
         }
     } 
 }
