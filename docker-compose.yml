@@ -1,6 +1,7 @@
 version: "3"
 services:
   backend_flask_server:
+    build: .
     image: dongho18/connect-gnu-flask:latest
     container_name: backend_flask_server
     ports:
