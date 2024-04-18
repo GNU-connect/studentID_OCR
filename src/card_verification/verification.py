@@ -33,10 +33,13 @@ model.eval()
 
 # test 이미지 저장
 drive_file_url = os.environ['CARD_VARIFICATION_IMAGE_URL']
-local_file_path = join(dirname(dirname(dirname(__file__))), 'temp/test.jpg')
+local_file_path = join(dirname(dirname(dirname(__file__))), 'temp', 'test.jpg')
+temp_dir = os.path.dirname(local_file_path)
+if not os.path.exists(temp_dir):
+    os.makedirs(temp_dir)
 if not os.path.exists(local_file_path):
     urllib.request.urlretrieve(drive_file_url, local_file_path)
-    print(local_file_path)
+    print("test.jpg 파일을 다운로드 받았습니다.")
 
 def img_ocr(img):
     custom_configs=[r'--oem 1 --psm 4',r'--oem 3 --psm 6',r'--oem 1 --psm 3']
