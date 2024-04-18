@@ -33,12 +33,12 @@ model.eval()
 
 # test 이미지 저장
 drive_file_url = os.environ['CARD_VARIFICATION_IMAGE_URL']
-local_file_path = join(dirname(dirname(dirname(__file__))), 'temp', 'test.jpg')
-temp_dir = os.path.dirname(local_file_path)
+test_image_file_path = join(dirname(dirname(dirname(__file__))), 'temp', 'test.jpg')
+temp_dir = os.path.dirname(test_image_file_path)
 if not os.path.exists(temp_dir):
     os.makedirs(temp_dir)
-if not os.path.exists(local_file_path):
-    urllib.request.urlretrieve(drive_file_url, local_file_path)
+if not os.path.exists(test_image_file_path):
+    urllib.request.urlretrieve(drive_file_url, test_image_file_path)
     print("test.jpg 파일을 다운로드 받았습니다.")
 
 def img_ocr(img):
@@ -96,7 +96,7 @@ def verify_user_mobile_card(params):
     userID=params['user']['id']
     response = requests.get(image_url)
     if response.status_code == 200:
-        file_name = f"temp/{userID}.jpg"
+        file_name = test_image_file_path
         with open(file_name, 'wb') as f:
             f.write(response.content)
     else:
@@ -109,7 +109,7 @@ def verify_user_mobile_card(params):
             deptID = row['id']
             break
     
-    similarity=capture_probability('temp/test.jpg',file_name)
+    similarity=capture_probability(test_image_file_path, file_name)
     if dept!=False and similarity>0.84:
         save_user_info(userID,deptID)
     os.remove(file_name)
