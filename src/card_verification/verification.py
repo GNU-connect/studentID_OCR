@@ -11,6 +11,7 @@ from torchvision.models.feature_extraction import create_feature_extractor
 import os
 import json
 import re
+from src.response.parameter_validation import Status
 
 supabaseResponse = supabase().table('department').select("id","department_ko").execute().data
 departments=[]
@@ -69,8 +70,11 @@ def save_user_info(user_id, department):
     response,count = supabase().table('kakao-user').upsert(data).execute()
 
 def verify_user_mobile_card(params):
+    # 이미지를 2개 이상 보낸 경우
     if json.loads(params['value']['resolved'])['imageQuantity'] != '1':
-        return '개수오류'
+        print(Status.FAIL)
+        return Status.FAIL
+    # 학과 정보는 불러왔으나, 학과 리스트에 없는 경우
     image_url=params['value']['origin'][5:-1]
     userID=params['user']['id']
     response = requests.get(image_url)
