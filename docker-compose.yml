@@ -7,6 +7,10 @@ services:
     ports:
       - "5000:5000"
     restart: unless-stopped
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - CARD_VARIFICATION_IMAGE_URL=${CARD_VARIFICATION_IMAGE_URL}
     depends_on:
       - nginx
   jenkins:
