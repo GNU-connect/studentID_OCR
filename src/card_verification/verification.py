@@ -33,7 +33,7 @@ model.eval()
 
 # test 이미지 저장
 drive_file_url = os.environ['CARD_VARIFICATION_IMAGE_URL']
-local_file_path = 'temp/test.jpg'
+local_file_path = join(dirname(dirname(dirname(__file__))), 'temp/test.jpg')
 if not os.path.exists(local_file_path):
     urllib.request.urlretrieve(drive_file_url, local_file_path)
     print(local_file_path)
