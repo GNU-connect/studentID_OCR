@@ -72,8 +72,9 @@ def save_user_info(user_id, department):
 def verify_user_mobile_card(params):
     # 이미지를 2개 이상 보낸 경우
     if json.loads(params['value']['resolved'])['imageQuantity'] != '1':
-        print(Status.FAIL)
-        return Status.FAIL
+        return {
+            'status': "FAIL",
+        }
     # 학과 정보는 불러왔으나, 학과 리스트에 없는 경우
     image_url=params['value']['origin'][5:-1]
     userID=params['user']['id']
