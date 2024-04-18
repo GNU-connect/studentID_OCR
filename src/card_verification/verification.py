@@ -35,7 +35,7 @@ model.eval()
 drive_file_url = os.environ['CARD_VARIFICATION_IMAGE_URL']
 local_file_path = "temp/test.jpg"
 if not os.path.exists(local_file_path):
-    urllib.request.urlretrieve(drive_file_url, local_file_path)
+    #urllib.request.urlretrieve(drive_file_url, local_file_path)
     print("test.jpg 파일을 다운로드 받았습니다.")
 
 def img_ocr(img):
