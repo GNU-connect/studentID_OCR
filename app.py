@@ -2,8 +2,6 @@ from flask import Flask
 from flask import request
 from src.cafeteria.cafeteria import get_cafeteria_info
 import src.card_verification.verification as verification
-import json
-import os
 app = Flask(__name__)
 
 @app.route('/api/cafeteria', methods=['POST'])

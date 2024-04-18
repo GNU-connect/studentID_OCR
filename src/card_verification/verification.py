@@ -11,19 +11,32 @@ from torchvision.models.feature_extraction import create_feature_extractor
 import os
 import json
 import re
-from src.response.parameter_validation import Status
+import urllib.request
+from dotenv import load_dotenv
+from os.path import join, dirname
 
+# .env 파일을 불러오기 위한 설정
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+
+# 학과 정보 불러오기
 supabaseResponse = supabase().table('department').select("id","department_ko").execute().data
 departments=[]
 for i in supabaseResponse:
     department_ko = i['department_ko'].replace(' ', '')
     departments.append(department_ko)
 
-
 # EfficientNet 모델 불러오기
 model = efficientnet_b0(weights=None)
 model = create_feature_extractor(model, return_nodes={'avgpool': 'avgpool'})
 model.eval()
+
+# test 이미지 저장
+drive_file_url = os.environ['CARD_VARIFICATION_IMAGE_URL']
+local_file_path = "temp/test.jpg"
+if not os.path.exists(local_file_path):
+    urllib.request.urlretrieve(drive_file_url, local_file_path)
+    print("test.jpg 파일을 다운로드 받았습니다.")
 
 def img_ocr(img):
     custom_configs=[r'--oem 1 --psm 4',r'--oem 3 --psm 6',r'--oem 1 --psm 3']
