@@ -20,8 +20,7 @@ def post_verify_mobile_card():
 
 @app.route('/api/welcome-message', methods=['POST'])
 def post_welcome_message():
-    result = CreateWelcomeMessage(request.json).greet()
-    print(result)
+    result = CreateWelcomeMessage(request.json).create_message()
     return result
 
 if __name__ == '__main__':
