@@ -94,6 +94,11 @@ def verify_user_mobile_card(params):
     # 이미지 URL을 가져옵니다.
     image_url = params['value']['origin'][5:-1]
     userID = params['user']['id']
+
+    # DB에 사용자 정보가 있는지 확인합니다.
+    user_info = supabase().table('kakao-user').select('id').eq('id', userID).execute().data
+    if len(user_info) > 0:
+        return {'status': "FAIL"}
     
     # 이미지 파일 경로를 설정합니다.
     file_name = join(dirname(dirname(dirname(__file__))), 'temp', f'{userID}.jpg')
