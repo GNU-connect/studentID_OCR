@@ -38,8 +38,7 @@ temp_dir = os.path.dirname(test_image_file_path)
 if not os.path.exists(temp_dir):
     os.makedirs(temp_dir)
 if not os.path.exists(test_image_file_path):
-    gdown.download(drive_file_url, test_image_file_path, quiet=True)
-    print("test.jpg 파일을 다운로드 받았습니다.")
+    gdown.download(drive_file_url, test_image_file_path, quiet=False)
 
 def img_ocr(img):
     custom_configs=[r'--oem 1 --psm 4',r'--oem 3 --psm 6',r'--oem 1 --psm 3']
