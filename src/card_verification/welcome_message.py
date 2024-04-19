@@ -4,18 +4,16 @@ import re
 class CreateWelcomeMessage:
     def __init__(self, json):
         params = json['action']['params']['mobile_card_image_url']
-        pattern = r'department\s*->\s*([\w가-힣]+)|error\s*->\s*([\w가-힣]+)'
-        matches = re.findall(pattern, params)
-        print(matches)
+        department_match = re.search(r'department\s*->\s*([\w가-힣]+)', params)
+        error_match = re.search(r'error\s*->\s*([\w가-힣]+)', params)
 
         self.department = None
         self.error_message = None
 
-        for match in matches:
-            if match[0]:
-                self.department = match[0]
-            if match[1]:
-                self.error_message = match[1]
+        if department_match is not None:
+            self.department = department_match.group(1)
+        if error_match is not None:
+            self.error_message = error_match.group(1)
     
     def create_message(self):
         print(self.department, self.error_message)
