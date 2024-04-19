@@ -6,6 +6,7 @@ class CreateWelcomeMessage:
         params = json['action']['params']['mobile_card_image_url']
         department_match = re.search(r'department\s*->\s*([\w가-힣]+)', params)
         error_match = re.search(r'error\s*->\s*([\w가-힣]+)', params)
+        print(department_match, error_match)
         self.department = department_match.group(1)
         self.error_message = error_match.group(1)
     
