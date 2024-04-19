@@ -4,14 +4,25 @@ import re
 class CreateWelcomeMessage:
     def __init__(self, json):
         params = json['action']['params']['mobile_card_image_url']
-        department_match = re.search(r'department\s*->\s*([\w가-힣]+)', params)
-        error_match = re.search(r'error\s*->\s*([\w가-힣]+)', params)
-        self.department = department_match.group(1) if department_match else None
-        self.error_message = error_match.group(1) if error_match else None
+        pattern = r'department\s*->\s*([\w가-힣]+)|error\s*->\s*([\w가-힣]+)'
+        matches = re.findall(pattern, params)
+
+        self.department = None
+        self.error_message = None
+
+        for match in matches:
+            if match[0]:
+                self.department = match[0]
+            if match[1]:
+                self.error_message = match[1]
     
     def create_message(self):
         print(self.department, self.error_message)
-        return self.error() if self.error_message else self.greet() # 에러 메시지가 있는 경우 에러 메시지를 반환하고, 없는 경우 환영 메시지를 반환합니다.
+        # 에러 메시지가 있으면 error 메서드를 호출하고 반환
+        if self.error_message:
+            return self.error()
+        # 그렇지 않으면 greet 메서드를 호출하고 반환
+        return self.greet()
 
     def greet(self):
         return Card(title=f"🎉 {self.department} 인증 완료", 
