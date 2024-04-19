@@ -117,6 +117,8 @@ def verify_user_mobile_card(params):
             if row['department_ko'] == dept:
                 deptID = row['id']
                 break
+        print(f"사용자 학과 정보: {dept}")
+        print(file_name, test_image_file_path)
         # 학과 정보가 없는 경우 실패로 처리합니다.
         if deptID is None:
             return {'status': "FAIL"}
