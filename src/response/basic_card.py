@@ -8,6 +8,7 @@ class Card:
     def result_json(self):
         result = {
             "version": "2.0",
+            "useCallback": True,
             "template": {
                 "outputs": [
                     {

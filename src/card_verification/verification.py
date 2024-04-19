@@ -88,7 +88,7 @@ def verify_user_mobile_card(params):
 
     # 이미지를 2개 이상 보낸 경우
     if resolved_params['imageQuantity'] != '1':
-        return {'status': "SUCESS", 'value': {'error_message': '이미지를 1개만 보내주세요.'}}
+        return {'status': "SUCCESS", 'value': {'error_message': '이미지를 1개만 보내주세요.'}}
 
     # 이미지 URL을 가져옵니다.
     image_url = params['value']['origin'][5:-1]
