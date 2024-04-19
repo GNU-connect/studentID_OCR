@@ -18,8 +18,9 @@ class Card:
         item_dict = {
             "title": self.title,
             "thumbnail": self.thumbnail.to_dict(),
-            "buttons": [button.to_dict() for button in self.buttons]
         }
         if self.description:
             item_dict["description"] = self.description
+        if self.buttons:
+            item_dict['template']['outputs'][0]['listCard']['buttons'] = [button.to_dict() for button in self.buttons]
         return item_dict

@@ -2,6 +2,7 @@ from flask import Flask
 from flask import request
 from src.cafeteria.cafeteria import get_cafeteria_info
 import src.card_verification.verification as verification
+from src.card_verification.welcome_message import CreateWelcomeMessage
 app = Flask(__name__)
 
 @app.route('/api/cafeteria', methods=['POST'])
@@ -15,6 +16,12 @@ def get_cafeteria():
 @app.route('/api/verify-mobile-card', methods=['POST'])
 def post_verify_mobile_card():
     result = verification.verify_user_mobile_card(request.json)
+    return result
+
+@app.route('/api/welcome-message', methods=['POST'])
+def post_welcome_message():
+    print(request.json)
+    result = CreateWelcomeMessage(request.json).greet()
     return result
 
 if __name__ == '__main__':

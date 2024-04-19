@@ -49,7 +49,6 @@ def img_ocr(img):
         
         for text in text_list:
             text = re.sub(r'\s+', '', text)
-            print(text)
             if text in departments:
                 founded_dept=text
                 return founded_dept
@@ -96,11 +95,13 @@ def verify_user_mobile_card(params):
     userID=params['user']['id']
     response = requests.get(image_url)
     if response.status_code == 200:
-        file_name = test_image_file_path
+        file_name = join(dirname(dirname(dirname(__file__))), 'temp', f'{userID}.jpg')
         with open(file_name, 'wb') as f:
             f.write(response.content)
     else:
-        pass
+        return {
+            'status': "FAIL",
+        }
     img = Image.open(file_name)
     dept=img_ocr(img)
     deptID = None
@@ -110,7 +111,17 @@ def verify_user_mobile_card(params):
             break
     
     similarity=capture_probability(test_image_file_path, file_name)
+    os.remove(file_name)
     if dept!=False and similarity>0.84:
         save_user_info(userID,deptID)
-    os.remove(file_name)
-    return [userID,deptID]
+    else:
+        return {
+            'status': "FAIL",
+        }
+    return {
+        'status': "SUCCESS",
+        'value': {
+            'name': '홍길동', # '홍길동'은 임의의 이름
+            'department': dept,
+        }
+    }
