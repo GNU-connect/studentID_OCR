@@ -1,12 +1,3 @@
-class Thumbnail:
-    def __init__(self, imageUrl):
-        self.imageUrl = imageUrl
-
-    def to_dict(self):
-        return {
-            "imageUrl": self.imageUrl
-        }
-
 class Card:
     def __init__(self, title, thumbnail, buttons=None, description=None):
         self.title = title
@@ -22,7 +13,9 @@ class Card:
                     {
                         "basicCard": {
                             "title": self.title,
-                            "thumbnail": self.thumbnail.to_dict()
+                            "thumbnail": {
+                                "imageUrl": self.thumbnail
+                            }
                         }
                     }
                 ]
