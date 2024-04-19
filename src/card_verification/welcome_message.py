@@ -4,16 +4,28 @@ import re
 class CreateWelcomeMessage:
     def __init__(self, json):
         params = json['action']['params']['mobile_card_image_url']
-        department_match = re.search(r'department\s*->\s*([\w가-힣]+)', params)
-        error_match = re.search(r'error_message\s*->\s*([\w가-힣]+)', params)
+        self.department, self.error_message = self.parse_params(params)
+    
+    def parse_params(params):
+        # department와 error_message를 선택적으로 추출하는 정규 표현식 패턴
+        pattern = r'department\s*->\s*(.+)|error_message\s*->\s*(.+)'
 
-        self.department = None
-        self.error_message = None
+        # 정규 표현식 패턴을 사용하여 `params`에서 매치 찾기
+        match = re.search(pattern, params)
 
-        if department_match is not None:
-            self.department = department_match.group(1)
-        if error_match is not None:
-            self.error_message = error_match.group(1)
+        # `department`와 `error_message` 필드의 값 초기화
+        department = None
+        error_message = None
+
+        # 매치가 있으면 `department`와 `error_message` 필드 값 추출
+        if match:
+            # 각 그룹의 매치 결과를 `None`에 대해 체크
+            if match.group(1) is not None:
+                department = match.group(1).strip(')')  # department 값 추출
+            if match.group(2) is not None:
+                error_message = match.group(2).strip(')')  # error_message 값 추출
+
+        return department, error_message
     
     def create_message(self):
         # 에러 메시지가 있으면 error 메서드를 호출하고 반환
