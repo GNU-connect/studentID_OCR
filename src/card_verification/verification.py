@@ -5,15 +5,15 @@ import torch
 from numpy import dot
 from numpy.linalg import norm
 import requests
-from PIL import Image, UnidentifiedImageError
+from PIL import Image
 from torchvision.models import efficientnet_b0
 from torchvision.models.feature_extraction import create_feature_extractor
 import os
 import json
 import re
-import urllib.request
 from dotenv import load_dotenv
 from os.path import join, dirname
+import gdown
 
 # .env 파일을 불러오기 위한 설정
 dotenv_path = join(dirname(dirname(dirname(__file__))), '.env')
@@ -38,7 +38,7 @@ temp_dir = os.path.dirname(test_image_file_path)
 if not os.path.exists(temp_dir):
     os.makedirs(temp_dir)
 if not os.path.exists(test_image_file_path):
-    urllib.request.urlretrieve(drive_file_url, test_image_file_path)
+    gdown.download(drive_file_url, test_image_file_path, quiet=True)
     print("test.jpg 파일을 다운로드 받았습니다.")
 
 def img_ocr(img):
@@ -121,7 +121,7 @@ def verify_user_mobile_card(params):
         if deptID is None:
             return {'status': "FAIL"}
         # 유사도가 0.84 이하인 경우 실패로 처리합니다.
-        if capture_probability('temp/test.jpg', f'temp/{userID}.jpg') <= 0.84:
+        if capture_probability(test_image_file_path, file_name) <= 0.84:
             return {'status': "FAIL"}
         save_user_info(userID, deptID) # 사용자 정보 저장
         result = {
