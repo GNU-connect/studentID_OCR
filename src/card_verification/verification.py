@@ -5,7 +5,7 @@ import torch
 from numpy import dot
 from numpy.linalg import norm
 import requests
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from torchvision.models import efficientnet_b0
 from torchvision.models.feature_extraction import create_feature_extractor
 import os
@@ -86,42 +86,59 @@ def save_user_info(user_id, department):
 
 def verify_user_mobile_card(params):
     # 이미지를 2개 이상 보낸 경우
-    if json.loads(params['value']['resolved'])['imageQuantity'] != '1':
-        return {
-            'status': "FAIL",
-        }
-    # 학과 정보는 불러왔으나, 학과 리스트에 없는 경우
-    image_url=params['value']['origin'][5:-1]
-    userID=params['user']['id']
-    response = requests.get(image_url)
-    if response.status_code == 200:
-        file_name = join(dirname(dirname(dirname(__file__))), 'temp', f'{userID}.jpg')
-        with open(file_name, 'wb') as f:
-            f.write(response.content)
-    else:
-        return {
-            'status': "FAIL",
-        }
-    img = Image.open(file_name)
-    dept=img_ocr(img)
+    resolved_params = json.loads(params['value']['resolved'])
+    if resolved_params['imageQuantity'] != '1':
+        return {'status': "FAIL"}
+
+    # 이미지 URL을 가져옵니다.
+    image_url = params['value']['origin'][5:-1]
+    userID = params['user']['id']
+    
+    # 이미지 파일 경로를 설정합니다.
+    file_name = join(dirname(dirname(dirname(__file__))), 'temp', f'{userID}.jpg')
+
+    # 이미지를 다운로드합니다.
+    try:
+        response = requests.get(image_url)
+        if response.status_code == 200:
+            # 이미지를 로컬에 저장합니다.
+            with open(file_name, 'wb') as f:
+                f.write(response.content)
+        else:
+            return {'status': "FAIL"}
+    except requests.RequestException:
+        return {'status': "FAIL"}
+
+    # 이미지를 엽니다.
+    try:
+        img = Image.open(file_name)
+    except UnidentifiedImageError:
+        os.remove(file_name)  # 오류 발생 시 파일을 삭제합니다.
+        return {'status': "FAIL"}
+
+    # OCR 기능을 수행하여 학과 정보를 추출합니다.
+    dept = img_ocr(img)
     deptID = None
+    
+    # 학과 정보와 supabaseResponse에서 정보를 비교합니다.
     for row in supabaseResponse:
         if row['department_ko'] == dept:
             deptID = row['id']
             break
     
-    similarity=capture_probability(test_image_file_path, file_name)
-    os.remove(file_name)
-    if dept!=False and similarity>0.84:
-        save_user_info(userID,deptID)
-    else:
+    # 유사도를 계산합니다.
+    similarity = capture_probability(test_image_file_path, file_name)
+    os.remove(file_name)  # 파일을 삭제합니다.
+
+    # 결과를 검증합니다.
+    if dept and similarity > 0.84:
+        save_user_info(userID, deptID)
         return {
-            'status': "FAIL",
+            'status': "SUCCESS",
+            'value': {
+                'name': '홍길동',  # '홍길동'은 임의의 이름입니다.
+                'department': dept,
+            }
         }
-    return {
-        'status': "SUCCESS",
-        'value': {
-            'name': '홍길동', # '홍길동'은 임의의 이름
-            'department': dept,
-        }
-    }
+    else:
+        return {'status': "FAIL"}
