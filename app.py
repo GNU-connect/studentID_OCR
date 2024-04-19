@@ -17,6 +17,7 @@ def get_cafeteria():
 @app.route('/api/verify-mobile-card', methods=['POST'])
 def post_verify_mobile_card():
     result = verification.verify_user_mobile_card(request.json)
+    print(result)
     return result
 
 @app.route('/api/welcome-message', methods=['POST'])
