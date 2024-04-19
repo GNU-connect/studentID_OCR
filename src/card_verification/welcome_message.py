@@ -6,6 +6,7 @@ class CreateWelcomeMessage:
         params = json['action']['params']['mobile_card_image_url']
         pattern = r'department\s*->\s*([\w가-힣]+)|error\s*->\s*([\w가-힣]+)'
         matches = re.findall(pattern, params)
+        print(matches)
 
         self.department = None
         self.error_message = None
