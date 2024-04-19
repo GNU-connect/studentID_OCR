@@ -127,7 +127,6 @@ def verify_user_mobile_card(params):
         result = {
             'status': "SUCCESS",
             'value': {
-                'name': '홍길동',  # '홍길동'은 임의의 이름입니다.
                 'department': dept,
             }
         }
