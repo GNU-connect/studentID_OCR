@@ -4,6 +4,7 @@ import re
 
 class CreateWelcomeMessage:
     def __init__(self, json):
+        print(json)
         params = json['action']['params']['mobile_card_image_url']
         # Map(department -> 컴퓨터공학과, name -> 홍길동)
         name_match = re.search(r'name\s*->\s*([\w가-힣]+)', params)
@@ -14,5 +15,7 @@ class CreateWelcomeMessage:
     def greet(self):
         return Card(title="🎉 우리 학교 인증 완료", 
                     description=f"{self.department} {self.name}님 커넥트 지누의 다억한 서비스를 이용해보세요 :)", 
-                    thumbnail="https://www.gnu.ac.kr/images/web/main/sub_cnt/as_1_05.png").result_json()
+                    thumbnail={
+                        "imageUrl": "https://www.gnu.ac.kr/images/web/main/sub_cnt/as_1_05.png"
+                    }).result_json()
     
