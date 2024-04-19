@@ -29,6 +29,7 @@ class CreateWelcomeMessage:
     
     def create_message(self):
         # 에러 메시지가 있으면 error 메서드를 호출하고 반환
+        print(self.error_message, self.department)
         if self.error_message is not None:
             return self.error()
         # 그렇지 않으면 greet 메서드를 호출하고 반환
