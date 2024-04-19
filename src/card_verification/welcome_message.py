@@ -6,7 +6,7 @@ class CreateWelcomeMessage:
         params = json['action']['params']['mobile_card_image_url']
         self.department, self.error_message = self.parse_params(params)
     
-    def parse_params(params):
+    def parse_params(self, params):
         # department와 error_message를 선택적으로 추출하는 정규 표현식 패턴
         pattern = r'department\s*->\s*(.+)|error_message\s*->\s*(.+)'
 
