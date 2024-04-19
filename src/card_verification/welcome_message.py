@@ -4,9 +4,8 @@ import re
 class CreateWelcomeMessage:
     def __init__(self, json):
         params = json['action']['params']['mobile_card_image_url']
-        print(params)
         department_match = re.search(r'department\s*->\s*([\w가-힣]+)', params)
-        error_match = re.search(r'error\s*->\s*([\w가-힣]+)', params)
+        error_match = re.search(r'error_message\s*->\s*([\w가-힣]+)', params)
 
         self.department = None
         self.error_message = None
