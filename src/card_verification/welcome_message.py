@@ -16,9 +16,8 @@ class CreateWelcomeMessage:
             self.error_message = error_match.group(1)
     
     def create_message(self):
-        print(self.department, self.error_message)
         # 에러 메시지가 있으면 error 메서드를 호출하고 반환
-        if self.error_message:
+        if self.error_message is not None:
             return self.error()
         # 그렇지 않으면 greet 메서드를 호출하고 반환
         return self.greet()
