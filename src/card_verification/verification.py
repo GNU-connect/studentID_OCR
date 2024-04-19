@@ -85,8 +85,9 @@ def save_user_info(user_id, department):
     response,count = supabase().table('kakao-user').upsert(data).execute()
 
 def verify_user_mobile_card(params):
-    # 이미지를 2개 이상 보낸 경우
     resolved_params = json.loads(params['value']['resolved'])
+
+    # 이미지를 2개 이상 보낸 경우
     if resolved_params['imageQuantity'] != '1':
         return {'status': "FAIL"}
 
@@ -100,45 +101,39 @@ def verify_user_mobile_card(params):
     # 이미지를 다운로드합니다.
     try:
         response = requests.get(image_url)
-        if response.status_code == 200:
-            # 이미지를 로컬에 저장합니다.
-            with open(file_name, 'wb') as f:
-                f.write(response.content)
-        else:
-            return {'status': "FAIL"}
+        with open(file_name, 'wb') as f:
+            f.write(response.content)
     except requests.RequestException:
+        print("사용자 모바일 카드 이미지 다운로드에 실패했습니다.")
         return {'status': "FAIL"}
 
-    # 이미지를 엽니다.
     try:
         img = Image.open(file_name)
-    except UnidentifiedImageError:
-        os.remove(file_name)  # 오류 발생 시 파일을 삭제합니다.
-        return {'status': "FAIL"}
-
-    # OCR 기능을 수행하여 학과 정보를 추출합니다.
-    dept = img_ocr(img)
-    deptID = None
-    
-    # 학과 정보와 supabaseResponse에서 정보를 비교합니다.
-    for row in supabaseResponse:
-        if row['department_ko'] == dept:
-            deptID = row['id']
-            break
-    
-    # 유사도를 계산합니다.
-    similarity = capture_probability(test_image_file_path, file_name)
-    os.remove(file_name)  # 파일을 삭제합니다.
-
-    # 결과를 검증합니다.
-    if dept and similarity > 0.84:
-        save_user_info(userID, deptID)
-        return {
+        # OCR 기능을 수행하여 학과 정보를 추출합니다.
+        dept = img_ocr(img)
+        deptID = None
+        # 학과 정보를 찾습니다.
+        for row in supabaseResponse:
+            if row['department_ko'] == dept:
+                deptID = row['id']
+                break
+        # 학과 정보가 없는 경우 실패로 처리합니다.
+        if deptID is None:
+            return {'status': "FAIL"}
+        # 유사도가 0.84 이하인 경우 실패로 처리합니다.
+        if capture_probability(test_image_file_path, file_name) <= 0.84:
+            return {'status': "FAIL"}
+        save_user_info(userID, deptID) # 사용자 정보 저장
+        result = {
             'status': "SUCCESS",
             'value': {
                 'name': '홍길동',  # '홍길동'은 임의의 이름입니다.
                 'department': dept,
             }
         }
-    else:
+        return result
+    except Exception as e:
+        print(f"사용자 모바일 카드 이미지 처리 중 오류가 발생했습니다. {e}")
         return {'status': "FAIL"}
+    finally:
+        os.remove(file_name)
