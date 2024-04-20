@@ -139,7 +139,7 @@ def verify_user_mobile_card(params):
         os.remove(file_name)
 
 # 학과 정보 매칭
-def match_department(department, supabase_response):
+def match_department(department):
     # department가 None인 경우와 매칭할 학과 정보가 없는 경우를 분리합니다.
     if department is None:
         return None
