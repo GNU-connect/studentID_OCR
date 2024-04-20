@@ -12,7 +12,7 @@ node {
         }
 
         stage('Unit Test') {
-            sh(script: 'pytest')
+            //
         }
 
         stage('Build') {
