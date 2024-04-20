@@ -84,7 +84,7 @@ def save_user_info(user_id, department):
     response,count = supabase().table('kakao-user').upsert(data).execute()
 
 def verify_user_mobile_card(params):
-    value = params['detailParams']['mobile_card_image_url']['value']
+    value = params['action']['params']['mobile_card_image_url']
 
     # 이미지를 2개 이상 보낸 경우
     if value['imageQuantity'] != '1':
