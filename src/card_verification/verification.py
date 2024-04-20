@@ -9,10 +9,10 @@ from PIL import Image
 import os
 import json
 from os.path import join, dirname
-global supabase_response, departments, model, test_image_file_path
 
 # 이미지 OCR 함수
 def img_ocr(img):
+    global departments
     custom_configs = [r'--oem 1 --psm 4', r'--oem 3 --psm 6', r'--oem 1 --psm 3']
     for config in custom_configs:
         texts = pytesseract.image_to_string(img, lang='kor', config=config)
@@ -40,6 +40,7 @@ def cos_sim(A, B):
 
 # 특성 추출 및 유사도 계산 함수
 def capture_similarity(original_image_path, test_image_path):
+    global model
     # 이미지 전처리
     original_image = image_preprocess(original_image_path)
     test_image = image_preprocess(test_image_path)
@@ -58,10 +59,11 @@ def capture_similarity(original_image_path, test_image_path):
 def save_user_info(user_id, department_id):
     # 'kakao-user' 테이블에 데이터 삽입
     data = {'id': user_id, 'department_id': department_id}
-    response, count = supabase().table('kakao-user').upsert(data).execute()
+    supabase().table('kakao-user').upsert(data).execute()
 
 # 사용자 모바일 카드 확인
 def verify_user_mobile_card(params):
+    global test_image_file_path, supabase_response
     value = json.loads(params['action']['params']['mobile_card_image_url'])
     
     # 이미지를 2개 이상 보낸 경우
