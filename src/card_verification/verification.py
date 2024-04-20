@@ -131,7 +131,7 @@ def verify_user_mobile_card(params):
                 deptID = row['id']
                 break
         # 유사도가 0.84 이하인 경우 실패로 처리합니다.
-        if capture_probability(test_image_file_path, file_name) <= 0.84:
+        if capture_probability(test_image_file_path, file_name) < 0.7:
             return {'status': "FAIL", 'value': {'error_message': '올바르지 않은 이미지입니다. 다시 시도해주세요.'}}
         # 학과 정보가 없는 경우 실패로 처리합니다.
         if deptID is None:
