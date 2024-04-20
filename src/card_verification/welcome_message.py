@@ -3,7 +3,8 @@ import re
 
 class CreateWelcomeMessage:
     def __init__(self, certification_result):
-        self.department = certification_result['department'] if 'department' in certification_result else None
+        self.department = certification_result['value']['department'] if 'value' in certification_result \
+                            and 'department' in certification_result['value'] else None
         self.error_message = certification_result['value']['error_message'] if 'value' in certification_result \
                              and 'error_message' in certification_result['value'] else None
     
