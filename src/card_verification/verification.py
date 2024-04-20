@@ -57,9 +57,9 @@ def img_ocr(img):
 def image_preprocess(image_path):
     image = Image.open(image_path).convert("RGB")
     preprocess = T.Compose([
-        T.Resize((224, 224)),
-        T.ToTensor(),
-        T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        T.Resize(256, interpolation=T.InterpolationMode.BICUBIC),
+        T.CenterCrop(224),
+        T.ToTensor()
     ])
     return preprocess(image).unsqueeze(0)
 
