@@ -1,4 +1,5 @@
 from src.utils.supabase import supabase
+from torchvision import models
 import torchvision.transforms as T
 import pytesseract
 import torch
@@ -26,9 +27,8 @@ for i in supabaseResponse:
     department_ko = i['department_ko'].replace(' ', '')
     departments.append(department_ko)
 
-# EfficientNet 모델 불러오기
-model = efficientnet_b0(weights=None)
-model = create_feature_extractor(model, return_nodes={'avgpool': 'avgpool'})
+# 사전 훈련된 ResNet18 모델 로드
+model = models.resnet18(pretrained=True)
 model.eval()
 
 # test 이미지 저장
@@ -68,13 +68,20 @@ def cos_sim(A, B):
     return dot(A, B) / (norm(A) * norm(B))
 
 def capture_probability(original_image_path, test_image_path):
-    # 원본 이미지와 테스트 이미지의 특성 벡터 추출
-    original_embedding = torch.flatten(model(image_preprocess(original_image_path))['avgpool']).detach().numpy()
-    test_embedding = torch.flatten(model(image_preprocess(test_image_path))['avgpool']).detach().numpy()
+    # 이미지 전처리
+    original_image = image_preprocess(original_image_path)
+    test_image = image_preprocess(test_image_path)
+    
+    # 특성 추출
+    with torch.no_grad():
+        original_embedding = model(original_image).flatten().numpy()
+        test_embedding = model(test_image).flatten().numpy()
     
     # 코사인 유사도 계산
     similarity = cos_sim(original_embedding, test_embedding)
-    print(f"Similarity: {similarity}")
+    print(f"Original Image: {original_image_path}")
+    print(f"Test Image: {test_image_path}")
+    print(f"Cosine Similarity: {similarity:.4f}")
     
     return similarity
 
