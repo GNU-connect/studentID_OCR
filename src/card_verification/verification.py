@@ -88,7 +88,7 @@ def verify_user_mobile_card(params):
 
     # 이미지를 2개 이상 보낸 경우
     if resolved_params['imageQuantity'] != '1':
-        return {'status': "SUCCESS", 'value': {'error_message': '이미지를 1개만 보내주세요.'}}
+        return {'status': "FAIL", 'value': {'error_message': '이미지를 1개만 보내주세요.'}}
 
     # 이미지 URL을 가져옵니다.
     image_url = params['value']['origin'][5:-1]
@@ -97,7 +97,7 @@ def verify_user_mobile_card(params):
     # DB에 사용자 정보가 있는지 확인합니다.
     user_info = supabase().table('kakao-user').select('id').eq('id', userID).execute().data
     if len(user_info) > 0:
-        return {'status': "SUCCESS", 'value': {'error_message': '이미 인증된 사용자입니다.'}}
+        return {'status': "FAIL", 'value': {'error_message': '이미 인증된 사용자입니다.'}}
     
     # 이미지 파일 경로를 설정합니다.
     file_name = join(dirname(dirname(dirname(__file__))), 'temp', f'{userID}.jpg')
@@ -123,10 +123,10 @@ def verify_user_mobile_card(params):
                 break
         # 유사도가 0.84 이하인 경우 실패로 처리합니다.
         if capture_probability(test_image_file_path, file_name) <= 0.84:
-            return {'status': "SUCCESS", 'value': {'error_message': '올바르지 않은 이미지입니다. 다시 시도해주세요.'}}
+            return {'status': "FAIL", 'value': {'error_message': '올바르지 않은 이미지입니다. 다시 시도해주세요.'}}
         # 학과 정보가 없는 경우 실패로 처리합니다.
         if deptID is None:
-            return {'status': "SUCCESS", 'value': {'error_message': '지원하지 않는 학과입니다. 자세한 정보는 1:1 문의를 이용해주세요.'}}
+            return {'status': "FAIL", 'value': {'error_message': '지원하지 않는 학과입니다. 자세한 정보는 1:1 문의를 이용해주세요.'}}
         save_user_info(userID, deptID) # 사용자 정보 저장
         result = {'status': "SUCCESS", 'value': {'department': dept}}
         return result
