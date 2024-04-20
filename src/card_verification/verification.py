@@ -23,7 +23,7 @@ supabase_response = supabase().table('department').select("id", "department_ko")
 departments = [row['department_ko'].replace(' ', '') for row in supabase_response]
 
 # 사전 훈련된 ResNet18 모델 로드
-model = models.resnet18(pretrained=True)
+model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
 model.eval()
 
 # test 이미지 저장 경로 설정
