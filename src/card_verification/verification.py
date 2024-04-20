@@ -33,7 +33,6 @@ gdown.download(drive_file_url, test_image_file_path, quiet=False)
 
 # 이미지 OCR 함수
 def img_ocr(img):
-    global departments
     custom_configs = [r'--oem 1 --psm 4', r'--oem 3 --psm 6', r'--oem 1 --psm 3']
     for config in custom_configs:
         texts = pytesseract.image_to_string(img, lang='kor', config=config)
@@ -61,7 +60,6 @@ def cos_sim(A, B):
 
 # 특성 추출 및 유사도 계산 함수
 def capture_similarity(original_image_path, test_image_path):
-    global model
     # 이미지 전처리
     original_image = image_preprocess(original_image_path)
     test_image = image_preprocess(test_image_path)
@@ -84,7 +82,6 @@ def save_user_info(user_id, department_id):
 
 # 사용자 모바일 카드 확인
 def verify_user_mobile_card(params):
-    global test_image_file_path, supabase_response
     value = json.loads(params['action']['params']['mobile_card_image_url'])
     
     # 이미지를 2개 이상 보낸 경우
@@ -115,10 +112,10 @@ def verify_user_mobile_card(params):
         # 이미지 OCR 기능을 수행하여 학과 정보를 추출합니다.
         img = Image.open(file_name)
         department = img_ocr(img)
-        
-        # 학과 정보가 존재하지 않는 경우
-        if not department:
-            return {'status': "FAIL", 'value': {'error_message': '지원하지 않는 학과입니다. 자세한 정보는 1:1 문의를 이용해주세요.'}}
+
+        # 유사도가 기준 미달인 경우
+        if capture_similarity(test_image_file_path, file_name) < 0.7:
+            return {'status': "FAIL", 'value': {'error_message': '올바르지 않은 이미지입니다. 다시 시도해주세요. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
         
         # 학과 정보 매칭
         department_id = None
@@ -126,11 +123,9 @@ def verify_user_mobile_card(params):
             if row['department_ko'] == department:
                 department_id = row['id']
                 break
-        
-        # 유사도가 기준 미달인 경우
-        similarity = capture_similarity(test_image_file_path, file_name)
-        if similarity < 0.7:
-            return {'status': "FAIL", 'value': {'error_message': '올바르지 않은 이미지입니다. 다시 시도해주세요.'}}
+        # 학과 정보가 존재하지 않는 경우
+        if department_id is None:
+            return {'status': "FAIL", 'value': {'error_message': '학과 정보를 찾을 수 없습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
         
         # 사용자 정보 저장
         save_user_info(user_id, department_id)
@@ -138,6 +133,6 @@ def verify_user_mobile_card(params):
     
     except Exception as e:
         print(f"사용자 모바일 카드 이미지 처리 중 오류 발생: {e}")
-        return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다.'}}
+        return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
     finally:
         os.remove(file_name)
