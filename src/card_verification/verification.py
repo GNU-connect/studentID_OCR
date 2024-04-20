@@ -84,15 +84,15 @@ def save_user_info(user_id, department):
     response,count = supabase().table('kakao-user').upsert(data).execute()
 
 def verify_user_mobile_card(params):
-    resolved_params = json.loads(params['value']['resolved'])
+    value = json.loads(params['detailParams']['mobile_card_image_url']['value'])
 
     # 이미지를 2개 이상 보낸 경우
-    if resolved_params['imageQuantity'] != '1':
+    if value['imageQuantity'] != '1':
         return {'status': "FAIL", 'value': {'error_message': '이미지를 1개만 보내주세요.'}}
 
     # 이미지 URL을 가져옵니다.
-    image_url = params['value']['origin'][5:-1]
-    userID = params['user']['id']
+    image_url = value['secureUrls'][5:-1]
+    userID = params['userRequest']['user']['id']
 
     # DB에 사용자 정보가 있는지 확인합니다.
     user_info = supabase().table('kakao-user').select('id').eq('id', userID).execute().data
