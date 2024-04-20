@@ -74,6 +74,7 @@ def capture_probability(original_image_path, test_image_path):
     
     # 코사인 유사도 계산
     similarity = cos_sim(original_embedding, test_embedding)
+    print(f"Similarity: {similarity}")
     
     return similarity
 
@@ -119,6 +120,7 @@ def verify_user_mobile_card(params):
         # 학과 정보를 찾습니다.
         for row in supabaseResponse:
             if row['department_ko'] == dept:
+                print(f"학과 정보: {dept}")
                 deptID = row['id']
                 break
         # 유사도가 0.84 이하인 경우 실패로 처리합니다.
