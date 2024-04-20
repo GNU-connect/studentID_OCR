@@ -12,6 +12,7 @@ from os.path import join, dirname
 from dotenv import load_dotenv
 import gdown
 from torchvision import models
+import re
 
 # .env 파일을 불러오기 위한 설정
 dotenv_path = join(dirname(dirname(dirname(__file__))), '.env')
@@ -39,6 +40,7 @@ def img_ocr(img):
         text_list = [text.strip() for text in texts.split('\n')]
         
         for text in text_list:
+            text = re.sub(r'\s+', '', text)
             if text in departments:
                 return text
     return None
@@ -113,17 +115,16 @@ def verify_user_mobile_card(params):
         img = Image.open(file_name)
         department = img_ocr(img)
 
+        # 학과 정보가 없는 경우
+        if department is None:
+            return {'status': "FAIL", 'value': {'error_message': '학과 정보를 찾을 수 없습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
+
         # 유사도가 기준 미달인 경우
-        if capture_similarity(test_image_file_path, file_name) < 0.7:
+        if capture_similarity(test_image_file_path, file_name) < 0.7 or department is None:
             return {'status': "FAIL", 'value': {'error_message': '올바르지 않은 이미지입니다. 다시 시도해주세요. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
         
         # 학과 정보 매칭
-        department_id = None
-        for row in supabase_response:
-            if row['department_ko'] == department:
-                department_id = row['id']
-                break
-        # 학과 정보가 존재하지 않는 경우
+        department_id = match_department(department)
         if department_id is None:
             return {'status': "FAIL", 'value': {'error_message': '학과 정보를 찾을 수 없습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
         
@@ -136,3 +137,17 @@ def verify_user_mobile_card(params):
         return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
     finally:
         os.remove(file_name)
+
+# 학과 정보 매칭
+def match_department(department, supabase_response):
+    # department가 None인 경우와 매칭할 학과 정보가 없는 경우를 분리합니다.
+    if department is None:
+        return None
+
+    # 학과 정보 매칭
+    for row in supabase_response:
+        if row['department_ko'] == department:
+            return row['id']
+
+    # 매칭이 실패한 경우 None 반환
+    return None
