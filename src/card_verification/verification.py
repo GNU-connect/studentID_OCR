@@ -85,6 +85,7 @@ def save_user_info(user_id, department_id):
 # 사용자 모바일 카드 확인
 def verify_user_mobile_card(params):
     value = json.loads(params['action']['params']['mobile_card_image_url'])
+    print(value)
     
     # 이미지를 2개 이상 보낸 경우
     if value['imageQuantity'] != '1':
