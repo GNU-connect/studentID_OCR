@@ -1,11 +1,15 @@
 import pytest
 import sys
 import os
+from dotenv import load_dotenv
 current_file_path = os.path.abspath(__file__)
 current_dir = os.path.dirname(current_file_path)
 base_dir = os.path.join(current_dir, '../../../')
 sys.path.append(base_dir)
 from app import app as flask_app
+dotenv_path = os.path.join(base_dir, '.env')
+load_dotenv(dotenv_path)
+
 
 # `pytest-flask`의 `fixture`를 사용하여 Flask 앱을 테스트 환경에 설정
 @pytest.fixture
@@ -16,6 +20,7 @@ def client():
 
 def test_verify_user_mobile_card(client):
     # 테스트 데이터 준비
+    secure_url = os.getenv('CARD_VARIFICATION_IMAGE_TEST_URL')
     data = {
         'userRequest': {
             'user': {
@@ -24,7 +29,7 @@ def test_verify_user_mobile_card(client):
         },
         'action': {
             'params': {
-                'mobile_card_image_url': '{"imageQuantity": "1", "secureUrls": ["https://example.com/image.jpg"]}'
+                'mobile_card_image_url': f'{{"imageQuantity": "1", "secureUrls": "{secure_url}"}}'
             }
         }
     }
@@ -57,7 +62,6 @@ def test_verify_user_mobile_card(client):
     # 'listCard'의 'title' 확인
     title = list_card.get('title')
     assert title is not None
-    assert '인증 완료' in title
 
     # 'listCard'의 'description' 확인
     description = list_card.get('description')

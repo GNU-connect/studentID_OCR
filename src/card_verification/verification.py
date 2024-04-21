@@ -128,7 +128,7 @@ def verify_user_mobile_card(params):
         department_id = match_department(department)
         if department_id is None:
             return {'status': "FAIL", 'value': {'error_message': '학과 정보를 찾을 수 없습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
-        
+        print(department_id, department)
         # 사용자 정보 저장
         save_user_info(user_id, department_id)
         return {'status': "SUCCESS", 'value': {'department': department}}
