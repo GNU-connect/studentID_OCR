@@ -6,59 +6,53 @@ from numpy import dot
 from numpy.linalg import norm
 import requests
 from PIL import Image
-from torchvision.models import efficientnet_b0
-from torchvision.models.feature_extraction import create_feature_extractor
 import os
 import json
-import re
-import urllib.request
-from dotenv import load_dotenv
 from os.path import join, dirname
+from dotenv import load_dotenv
+import gdown
+from torchvision import models
+import re
 
 # .env 파일을 불러오기 위한 설정
-dotenv_path = join(dirname(__file__), '.env')
+dotenv_path = join(dirname(dirname(dirname(__file__))), '.env')
 load_dotenv(dotenv_path)
 
 # 학과 정보 불러오기
-supabaseResponse = supabase().table('department').select("id","department_ko").execute().data
-departments=[]
-for i in supabaseResponse:
-    department_ko = i['department_ko'].replace(' ', '')
-    departments.append(department_ko)
+supabase_response = supabase().table('department').select("id", "department_ko").execute().data
+departments = [row['department_ko'].replace(' ', '') for row in supabase_response]
 
-# EfficientNet 모델 불러오기
-model = efficientnet_b0(weights=None)
-model = create_feature_extractor(model, return_nodes={'avgpool': 'avgpool'})
+# 사전 훈련된 ResNet18 모델 로드
+model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
 model.eval()
 
-# test 이미지 저장
+# test 이미지 저장 경로 설정
 drive_file_url = os.environ['CARD_VARIFICATION_IMAGE_URL']
-local_file_path = "temp/test.jpg"
-if not os.path.exists(local_file_path):
-    #urllib.request.urlretrieve(drive_file_url, local_file_path)
-    print("test.jpg 파일을 다운로드 받았습니다.")
+test_image_file_path = join(dirname(dirname(dirname(__file__))), 'temp', 'test.jpg')
+os.makedirs(os.path.dirname(test_image_file_path), exist_ok=True)
+gdown.download(drive_file_url, test_image_file_path, quiet=False)
 
+# 이미지 OCR 함수
 def img_ocr(img):
-    custom_configs=[r'--oem 1 --psm 4',r'--oem 3 --psm 6',r'--oem 1 --psm 3']
-    for i in range(len(custom_configs)):
-        texts = pytesseract.image_to_string(img, lang='kor', config=custom_configs[i])
-        text_list = texts.split('\n')
+    custom_configs = [r'--oem 1 --psm 4', r'--oem 3 --psm 6', r'--oem 1 --psm 3']
+    for config in custom_configs:
+        texts = pytesseract.image_to_string(img, lang='kor', config=config)
+        text_list = [text.strip() for text in texts.split('\n')]
         
         for text in text_list:
             text = re.sub(r'\s+', '', text)
-            print(text)
             if text in departments:
-                founded_dept=text
-                return founded_dept
-    return False
+                return text
+    return None
 
 # 이미지 로드 및 전처리 함수
 def image_preprocess(image_path):
     image = Image.open(image_path).convert("RGB")
     preprocess = T.Compose([
-        T.Resize(256, interpolation=T.InterpolationMode.BICUBIC),
+        T.Resize(224),
         T.CenterCrop(224),
-        T.ToTensor()
+        T.ToTensor(),
+        T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
     return preprocess(image).unsqueeze(0)
 
@@ -66,10 +60,16 @@ def image_preprocess(image_path):
 def cos_sim(A, B):
     return dot(A, B) / (norm(A) * norm(B))
 
-def capture_probability(original_image_path, test_image_path):
-    # 원본 이미지와 테스트 이미지의 특성 벡터 추출
-    original_embedding = torch.flatten(model(image_preprocess(original_image_path))['avgpool']).detach().numpy()
-    test_embedding = torch.flatten(model(image_preprocess(test_image_path))['avgpool']).detach().numpy()
+# 특성 추출 및 유사도 계산 함수
+def capture_similarity(original_image_path, test_image_path):
+    # 이미지 전처리
+    original_image = image_preprocess(original_image_path)
+    test_image = image_preprocess(test_image_path)
+    
+    # 특성 추출
+    with torch.no_grad():
+        original_embedding = model(original_image).flatten().numpy()
+        test_embedding = model(test_image).flatten().numpy()
     
     # 코사인 유사도 계산
     similarity = cos_sim(original_embedding, test_embedding)
@@ -77,37 +77,78 @@ def capture_probability(original_image_path, test_image_path):
     return similarity
 
 # 데이터베이스에 사용자 정보 저장
-def save_user_info(user_id, department):
-    # 'users' 테이블에 데이터 삽입
-    data = {'id': user_id, 'department_id': department}
-    response,count = supabase().table('kakao-user').upsert(data).execute()
+def save_user_info(user_id, department_id):
+    # 'kakao-user' 테이블에 데이터 삽입
+    data = {'id': user_id, 'department_id': department_id}
+    supabase().table('kakao-user').upsert(data).execute()
 
+# 사용자 모바일 카드 확인
 def verify_user_mobile_card(params):
+    value = json.loads(params['action']['params']['mobile_card_image_url'])
+    print(value)
+    
     # 이미지를 2개 이상 보낸 경우
-    if json.loads(params['value']['resolved'])['imageQuantity'] != '1':
-        return {
-            'status': "FAIL",
-        }
-    # 학과 정보는 불러왔으나, 학과 리스트에 없는 경우
-    image_url=params['value']['origin'][5:-1]
-    userID=params['user']['id']
-    response = requests.get(image_url)
-    if response.status_code == 200:
-        file_name = f"temp/{userID}.jpg"
+    if value['imageQuantity'] != '1':
+        return {'status': "FAIL", 'value': {'error_message': '이미지를 1개만 보내주세요.'}}
+
+    # 이미지 URL을 가져옵니다.
+    image_url = value['secureUrls'][5:-1]
+    user_id = params['userRequest']['user']['id']
+
+    # DB에 사용자 정보가 있는지 확인합니다.
+    user_info = supabase().table('kakao-user').select('id').eq('id', user_id).execute().data
+    if user_info:
+        return {'status': "FAIL", 'value': {'error_message': '이미 인증된 사용자입니다.'}}
+    
+    # 이미지 파일 경로를 설정합니다.
+    file_name = join(dirname(dirname(dirname(__file__))), 'temp', f'{user_id}.jpg')
+
+    # 이미지를 다운로드합니다.
+    try:
+        response = requests.get(image_url)
         with open(file_name, 'wb') as f:
             f.write(response.content)
-    else:
-        pass
-    img = Image.open(file_name)
-    dept=img_ocr(img)
-    deptID = None
-    for row in supabaseResponse:
-        if row['department_ko'] == dept:
-            deptID = row['id']
-            break
+    except requests.RequestException as e:
+        return {'status': "FAIL"}
+
+    try:
+        # 이미지 OCR 기능을 수행하여 학과 정보를 추출합니다.
+        img = Image.open(file_name)
+        department = img_ocr(img)
+
+        # 학과 정보가 없는 경우
+        if department is None:
+            return {'status': "FAIL", 'value': {'error_message': '학과 정보를 찾을 수 없습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
+
+        # 유사도가 기준 미달인 경우
+        if capture_similarity(test_image_file_path, file_name) < 0.7 or department is None:
+            return {'status': "FAIL", 'value': {'error_message': '올바르지 않은 이미지입니다. 다시 시도해주세요. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
+        
+        # 학과 정보 매칭
+        department_id = match_department(department)
+        if department_id is None:
+            return {'status': "FAIL", 'value': {'error_message': '학과 정보를 찾을 수 없습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
+        print(department_id, department)
+        # 사용자 정보 저장
+        save_user_info(user_id, department_id)
+        return {'status': "SUCCESS", 'value': {'department': department}}
     
-    similarity=capture_probability('temp/test.jpg',file_name)
-    if dept!=False and similarity>0.84:
-        save_user_info(userID,deptID)
-    os.remove(file_name)
-    return [userID,deptID]
+    except Exception as e:
+        print(f"사용자 모바일 카드 이미지 처리 중 오류 발생: {e}")
+        return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
+    finally:
+        os.remove(file_name)
+
+# 학과 정보 매칭
+def match_department(department):
+    # department가 None인 경우와 매칭할 학과 정보가 없는 경우를 분리합니다.
+    if department is None:
+        return None
+
+    # 학과 정보 매칭
+    for row in supabase_response:
+        if row['department_ko'] == department:
+            return row['id']
+
+    # 매칭이 실패한 경우 None 반환
+    return None
