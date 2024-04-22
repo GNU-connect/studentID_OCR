@@ -12,10 +12,11 @@ node {
         }
 
         stage('Unit Test') {
-            //
+            sh(script: 'pytest')
         }
 
         stage('Build') {
+            sh(script: 'docker-compose build jenkins')
             sh(script: 'docker-compose build nginx')
             sh(script: 'docker-compose build backend_flask_server')
         }
@@ -35,6 +36,7 @@ node {
 
         stage('Deploy') {
             sh(script: 'docker-compose down')
+            sh(script: 'docker-compose up -d jenkins')
             sh(script: 'docker-compose up -d nginx')
             sh(script: 'docker-compose up -d backend_flask_server')
         }

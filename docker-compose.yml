@@ -11,6 +11,7 @@ services:
       - CARD_VARIFICATION_IMAGE_URL=${CARD_VARIFICATION_IMAGE_URL}
     depends_on:
       - nginx
+      - jenkins
   jenkins:
     image: jenkins/jenkins:latest
     container_name: jenkins
