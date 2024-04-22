@@ -41,5 +41,5 @@ services:
     networks:
       - connect-gnu-network
 networks:
-  bridge:
+  connect-gnu-network:
     external: true
