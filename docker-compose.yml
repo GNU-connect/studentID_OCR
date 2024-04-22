@@ -42,4 +42,4 @@ services:
       - connect-gnu-network
 networks:
   connect-gnu-network:
-    driver: bridge
+    external: true
