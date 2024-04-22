@@ -4,8 +4,6 @@ services:
     build: .
     image: dongho18/connect-gnu-flask:latest
     container_name: backend_flask_server
-    ports:
-      - "5000:5000"
     restart: unless-stopped
     environment:
       - SUPABASE_URL=${SUPABASE_URL}
@@ -16,12 +14,8 @@ services:
   jenkins:
     image: jenkins/jenkins:latest
     container_name: jenkins
-    ports:
-      - "8080:8080"
-      - "50000:50000"
     environment:
       - TZ=Asia/Seoul
-      - JENKINS_ARGS=--webroot=/var/cache/jenkins/war --httpPort=8080 --httpListenAddress=127.0.0.1
     user: root
     privileged: true
     volumes:
