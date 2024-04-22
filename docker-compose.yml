@@ -41,5 +41,5 @@ services:
     networks:
       - connect-gnu-network
 networks:
-  webnet:
+  connect-gnu-network:
     driver: bridge
