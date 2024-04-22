@@ -40,3 +40,6 @@ services:
       - "80:80"
     networks:
       - connect-gnu-network
+networks:
+  webnet:
+    driver: bridge
