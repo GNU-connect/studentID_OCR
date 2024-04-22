@@ -12,7 +12,7 @@ services:
     depends_on:
       - nginx
     networks:
-      - bridge
+      - connect-gnu-network
   jenkins:
     image: jenkins/jenkins:latest
     container_name: jenkins
@@ -30,7 +30,7 @@ services:
       - /usr/local/lib/docker/cli-plugins/docker-compose:/usr/local/bin/docker-compose
     restart: unless-stopped
     networks:
-      - bridge
+      - connect-gnu-network
   nginx:
     restart: always
     build:
@@ -39,7 +39,7 @@ services:
     ports:
       - "80:80"
     networks:
-      - bridge
+      - connect-gnu-network
 networks:
   bridge:
     external: true
