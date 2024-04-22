@@ -11,6 +11,8 @@ services:
       - CARD_VARIFICATION_IMAGE_URL=${CARD_VARIFICATION_IMAGE_URL}
     depends_on:
       - nginx
+    networks:
+      - connect-gnu-network
   jenkins:
     image: jenkins/jenkins:latest
     container_name: jenkins
@@ -27,6 +29,8 @@ services:
       - /usr/bin/docker:/usr/bin/docker
       - /usr/local/lib/docker/cli-plugins/docker-compose:/usr/local/bin/docker-compose
     restart: unless-stopped
+    networks:
+      - connect-gnu-network
   nginx:
     restart: always
     build:
@@ -34,3 +38,5 @@ services:
       context: ./nginx
     ports:
       - "80:80"
+    networks:
+      - connect-gnu-network
