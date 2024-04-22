@@ -21,7 +21,7 @@ services:
       - "50000:50000"
     environment:
       - TZ=Asia/Seoul
-      - JENKINS_ARGS: "--webroot=/var/cache/jenkins/war --httpPort=8080 --httpListenAddress=127.0.0.1"
+      - JENKINS_ARGS=--webroot=/var/cache/jenkins/war --httpPort=8080 --httpListenAddress=127.0.0.1
     user: root
     privileged: true
     volumes:
