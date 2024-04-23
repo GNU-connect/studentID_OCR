@@ -18,10 +18,10 @@ class CreateWelcomeMessage:
     def greet(self):
         return Card(title=f"🎉 {self.department} 인증 완료", 
                     description="커넥트 지누가 당신을 환영합니다 !",
-                    thumbnail="https://www.gnu.ac.kr/images/web/main/sub_cnt/as_1_05.png").result_json()
+                    thumbnail="https://mir-s3-cdn-cf.behance.net/project_modules/disp/626139154238883.633e7921e8b21.gif").result_json()
 
     def error(self):
         return Card(title="🥲 인증 실패", 
                     description=f"{self.error_message}",
-                    thumbnail="https://www.gnu.ac.kr/images/web/main/sub_cnt/as_1_42.png").result_json()
+                    thumbnail="https://mir-s3-cdn-cf.behance.net/project_modules/disp/087699154238883.633e7921ea3ae.gif").result_json()
     
