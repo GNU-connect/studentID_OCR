@@ -1,5 +1,4 @@
 from src.response.basic_card import Card
-import re
 
 class CreateWelcomeMessage:
     def __init__(self, certification_result):

@@ -1,9 +1,9 @@
-# import sys
-# import os
-# current_file_path = os.path.abspath(__file__)
-# current_dir = os.path.dirname(current_file_path)
-# base_dir = os.path.join(current_dir, '../')
-# sys.path.append(base_dir)
+import sys
+import os
+current_file_path = os.path.abspath(__file__)
+current_dir = os.path.dirname(current_file_path)
+base_dir = os.path.join(current_dir, '../')
+sys.path.append(base_dir)
 
 logging_config  = {
     'version': 1,
@@ -13,18 +13,25 @@ logging_config  = {
         }
     },
     'handlers': {
-        'file': {
+        'file_info': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            #'filename': os.path.join(base_dir, 'logs/connectgnu_error.log'),
-            'filename': 'logs/connectgnu.log',
+            'filename': os.path.join(base_dir, 'logs/server_info.log'),
+            'maxBytes': 1024 * 1024 * 5,  # 5MB
+            'backupCount': 5,
+            'formatter': 'default',
+        },
+        'file_error': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(base_dir, 'logs/server_error.log'),
             'maxBytes': 1024 * 1024 * 5,  # 5MB
             'backupCount': 5,
             'formatter': 'default',
         },
     },
     'root': {
-        'level': 'INFO',
-        'handlers': ['file']
+        'level': 'DEBUG',
+        'handlers': ['file_info', 'file_error']
     }
 }

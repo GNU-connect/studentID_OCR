@@ -13,6 +13,8 @@ from dotenv import load_dotenv
 import gdown
 from torchvision import models
 import re
+import logging
+logger = logging.getLogger(__name__)
 
 # .env 파일을 불러오기 위한 설정
 dotenv_path = join(dirname(dirname(dirname(__file__))), '.env')
@@ -85,7 +87,6 @@ def save_user_info(user_id, department_id):
 # 사용자 모바일 카드 확인
 def verify_user_mobile_card(params):
     value = json.loads(params['action']['params']['mobile_card_image_url'])
-    print(value)
     
     # 이미지를 2개 이상 보낸 경우
     if value['imageQuantity'] != '1':
@@ -128,9 +129,9 @@ def verify_user_mobile_card(params):
         department_id = match_department(department)
         if department_id is None:
             return {'status': "FAIL", 'value': {'error_message': '학과 정보를 찾을 수 없습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
-        print(department_id, department)
         # 사용자 정보 저장
         save_user_info(user_id, department_id)
+        logger.info(f"{user_id} - {department} 인증 완료")
         return {'status': "SUCCESS", 'value': {'department': department}}
     
     except Exception as e:
