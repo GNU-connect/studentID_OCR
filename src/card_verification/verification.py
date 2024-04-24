@@ -131,11 +131,11 @@ def verify_user_mobile_card(params):
             return {'status': "FAIL", 'value': {'error_message': '학과 정보를 찾을 수 없습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
         # 사용자 정보 저장
         save_user_info(user_id, department_id)
-        logger.logger.info(f"{user_id} - {department} 인증 완료")
+        logger.info(f"{user_id} - {department} 인증 완료")
         return {'status': "SUCCESS", 'value': {'department': department}}
     
     except Exception as e:
-        print(f"사용자 모바일 카드 이미지 처리 중 오류 발생: {e}")
+        logger.error(f"{user_id} - 이미지 처리 중 오류 발생: {e}")
         return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
     finally:
         os.remove(file_name)
