@@ -1,10 +1,13 @@
 from flask import Flask
 from flask import request
+from logging.config import dictConfig
+from config.logging import logging_config
 from src.cafeteria.cafeteria import get_cafeteria_info
 import src.card_verification.verification as verification
 from src.card_verification.welcome_message import CreateWelcomeMessage
 
 app = Flask(__name__)
+dictConfig(logging_config)
 
 @app.route('/api/cafeteria', methods=['POST'])
 def get_cafeteria():
