@@ -3,7 +3,7 @@ from src.common.user import get_user_campus_info
 from src.response.list_card import ListCard, ListItem
 from src.response.button import Button
 import logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("cafeteria")
 
 def get_cafeteria_info(user_id, campus_id=None):
     cafeteria_list = []
@@ -50,5 +50,5 @@ def get_cafeteria_info(user_id, campus_id=None):
             
         buttons.append(Button(label="더 보기", action="block", blockId=block_id, extra={"sys_campus_id": 0}))
         response = ListCard("어떤 교내 식당 정보가 궁금하세요?", items, buttons)
-    logger.logger.info(f"{user_id} - {campus_id}번 교내 식당 정보 조회 완료")
+    logger.info(f"{user_id} - {campus_id}번 교내 식당 정보 조회 완료")
     return response.to_dict()
