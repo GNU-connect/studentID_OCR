@@ -4,7 +4,7 @@ from src.cafeteria.cafeteria import get_cafeteria_info
 import src.card_verification.verification as verification
 from src.card_verification.welcome_message import CreateWelcomeMessage
 from config.logging import logging_config
-import logging
+import logging.config
 
 PORT = 5000
 app = Flask(__name__)
