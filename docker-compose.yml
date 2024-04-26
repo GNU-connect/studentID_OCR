@@ -11,6 +11,8 @@ services:
       - CARD_VARIFICATION_IMAGE_URL=${CARD_VARIFICATION_IMAGE_URL}
     depends_on:
       - nginx
+    volumes:
+      - ./logs:/logs
     networks:
       - connect-gnu-network
   jenkins:
