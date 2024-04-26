@@ -12,7 +12,7 @@ services:
     depends_on:
       - nginx
     volumes:
-      - ./logs:/logs
+      - ./logs:/app/logs
     networks:
       - connect-gnu-network
   jenkins:
@@ -22,8 +22,6 @@ services:
       - TZ=Asia/Seoul
     user: root
     privileged: true
-    ports:
-      - "8080:8080"
     volumes:
       - /jenkins:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
