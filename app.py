@@ -3,16 +3,13 @@ from flask import request
 from src.cafeteria.cafeteria import get_cafeteria_info
 import src.card_verification.verification as verification
 from src.card_verification.welcome_message import CreateWelcomeMessage
-import os
-from logging.config import dictConfig
 from config.logging import logging_config
+import logging
 
 PORT = 5000
 app = Flask(__name__)
-# 로그 설정
-if not os.path.isdir('logs'):
-  os.mkdir('logs')
-dictConfig(logging_config)
+logger = logging.getLogger("connect-gnu")
+logging.config.dictConfig(logging_config)
 
 @app.route('/api/cafeteria', methods=['POST'])
 def get_cafeteria():
@@ -29,13 +26,13 @@ def post_verify_mobile_card():
     return result
 
 if __name__ == '__main__':
-    app.logger.info("     _______. _______ .______      ____    ____  _______ .______           ______   .__   __.")
-    app.logger.info("    /       ||   ____||   _  \     \   \  /   / |   ____||   _  \         /  __  \  |  \ |  |")
-    app.logger.info("   |   (----`|  |__   |  |_)  |     \   \/   /  |  |__   |  |_)  |       |  |  |  | |   \|  |")
-    app.logger.info("    \   \    |   __|  |      /       \      /   |   __|  |      /        |  |  |  | |  . `  |")
-    app.logger.info(".----)   |   |  |____ |  |\  \----.   \    /    |  |____ |  |\  \----.   |  `--'  | |  |\   |")
-    app.logger.info("|_______/    |_______|| _| `._____|    \__/     |_______|| _| `._____|    \______/  |__| \__|")
-    app.logger.info('                                                                                       PORT='+str(PORT))
+    logger.info("     _______. _______ .______      ____    ____  _______ .______           ______   .__   __.")
+    logger.info("    /       ||   ____||   _  \     \   \  /   / |   ____||   _  \         /  __  \  |  \ |  |")
+    logger.info("   |   (----`|  |__   |  |_)  |     \   \/   /  |  |__   |  |_)  |       |  |  |  | |   \|  |")
+    logger.info("    \   \    |   __|  |      /       \      /   |   __|  |      /        |  |  |  | |  . `  |")
+    logger.info(".----)   |   |  |____ |  |\  \----.   \    /    |  |____ |  |\  \----.   |  `--'  | |  |\   |")
+    logger.info("|_______/    |_______|| _| `._____|    \__/     |_______|| _| `._____|    \______/  |__| \__|")
+    logger.info('                                                                                       PORT='+str(PORT))
     app.run('0.0.0.0', port=PORT, debug=True)
 
 

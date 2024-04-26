@@ -14,10 +14,7 @@ import gdown
 from torchvision import models
 import re
 import logging
-from config.logging import logging_config
-from logging.config import dictConfig
-dictConfig(logging_config)
-logger = logging.getLogger("verification")
+logger = logging.getLogger("connect-gnu")
 
 # .env 파일을 불러오기 위한 설정
 dotenv_path = join(dirname(dirname(dirname(__file__))), '.env')
