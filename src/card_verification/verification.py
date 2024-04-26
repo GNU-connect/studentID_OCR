@@ -87,19 +87,21 @@ def save_user_info(user_id, department_id):
 # 사용자 모바일 카드 확인
 def verify_user_mobile_card(params):
     value = json.loads(params['action']['params']['mobile_card_image_url'])
+    user_id = params['userRequest']['user']['id'] # 사용자 ID
+    image_url = value['secureUrls'][5:-1] # 이미지 URL
     
     # 이미지를 2개 이상 보낸 경우
     if value['imageQuantity'] != '1':
-        return {'status': "FAIL", 'value': {'error_message': '이미지를 1개만 보내주세요.'}}
-
-    # 이미지 URL을 가져옵니다.
-    image_url = value['secureUrls'][5:-1]
-    user_id = params['userRequest']['user']['id']
+        warn_message = '이미지를 1개만 보내주세요.'
+        logger.warn(f"유저 id: {user_id} - 에러 메세지: {warn_message}")
+        return {'status': "FAIL", 'value': {'error_message': warn_message}}
 
     # DB에 사용자 정보가 있는지 확인합니다.
     user_info = supabase().table('kakao-user').select('id').eq('id', user_id).execute().data
     if user_info:
-        return {'status': "FAIL", 'value': {'error_message': '이미 인증된 사용자입니다.'}}
+        warn_message = '이미 인증된 사용자입니다.'
+        logger.warn(f"유저 id: {user_id} - 에러 메세지: {warn_message}")
+        return {'status': "FAIL", 'value': {'error_message': warn_message}}
     
     # 이미지 파일 경로를 설정합니다.
     file_name = join(dirname(dirname(dirname(__file__))), 'temp', f'{user_id}.jpg')
@@ -109,8 +111,10 @@ def verify_user_mobile_card(params):
         response = requests.get(image_url)
         with open(file_name, 'wb') as f:
             f.write(response.content)
-    except requests.RequestException as e:
-        return {'status': "FAIL"}
+    except Exception as e:
+        error_message = f"이미지 다운로드 중 오류 발생: {e}"
+        logger.error(f"유저 id: {user_id} - 에러 메세지: {error_message}")
+        return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
 
     try:
         # 이미지 OCR 기능을 수행하여 학과 정보를 추출합니다.
@@ -119,23 +123,38 @@ def verify_user_mobile_card(params):
 
         # 학과 정보가 없는 경우
         if department is None:
-            return {'status': "FAIL", 'value': {'error_message': '학과 정보를 찾을 수 없습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
+            warn_message = '학과 정보를 찾을 수 없습니다.'
+            logger.warn(f"유저 id: {user_id} - 에러 메세지: {warn_message}")
+            return {'status': "FAIL", 'value': {'error_message': f'{warn_message} 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
 
         # 유사도가 기준 미달인 경우
-        if capture_similarity(test_image_file_path, file_name) < 0.7 or department is None:
-            return {'status': "FAIL", 'value': {'error_message': '올바르지 않은 이미지입니다. 다시 시도해주세요. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
+        similarity = capture_similarity(test_image_file_path, file_name)
+        if similarity < 0.7 or department is None:
+            warn_message = '올바르지 않은 이미지입니다. 다시 시도해주세요.'
+            logger.warn(f"유저 id: {user_id} - 에러 메세지: {warn_message}, 유사도: {similarity}")
+            return {'status': "FAIL", 'value': {'error_message': f'{warn_message} 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
         
         # 학과 정보 매칭
         department_id = match_department(department)
         if department_id is None:
-            return {'status': "FAIL", 'value': {'error_message': '학과 정보를 찾을 수 없습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
+            warn_message = '학과 정보를 찾을 수 없습니다.'
+            logger.warn(f"유저 id: {user_id} - 에러 메세지: {warn_message}")
+            return {'status': "FAIL", 'value': {'error_message': f'{warn_message} 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
+        
         # 사용자 정보 저장
-        save_user_info(user_id, department_id)
-        logger.info(f"{user_id} - {department} 인증 완료")
+        try:
+            save_user_info(user_id, department_id)
+        except Exception as e:
+            error_message = f"사용자 정보 저장 중 오류 발생: {e}"
+            logger.error(f"유저 id: {user_id} - 에러 메세지: {error_message}")
+            return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
+
+        logger.info(f"유저 id: {user_id} - {department} 인증 완료")
         return {'status': "SUCCESS", 'value': {'department': department}}
     
     except Exception as e:
-        logger.error(f"{user_id} - 이미지 처리 중 오류 발생: {e}")
+        error_message = f"이미지 처리 중 오류 발생: {e}"
+        logger.error(f"유저 id: {user_id} - 에러 메세지: {error_message}")
         return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
     finally:
         os.remove(file_name)
