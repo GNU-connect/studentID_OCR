@@ -93,14 +93,14 @@ def verify_user_mobile_card(params):
     # 이미지를 2개 이상 보낸 경우
     if value['imageQuantity'] != '1':
         warn_message = '이미지를 1개만 보내주세요.'
-        logger.warn(f"유저 id: {user_id} - 에러 메세지: {warn_message}")
+        logger.warn(f"[실패] 유저 id: {user_id} - 에러 메세지: {warn_message}")
         return {'status': "FAIL", 'value': {'error_message': warn_message}}
 
     # DB에 사용자 정보가 있는지 확인합니다.
     user_info = supabase().table('kakao-user').select('id').eq('id', user_id).execute().data
     if user_info:
         warn_message = '이미 인증된 사용자입니다.'
-        logger.warn(f"유저 id: {user_id} - 에러 메세지: {warn_message}")
+        logger.warn(f"[실패] 유저 id: {user_id} - 에러 메세지: {warn_message}")
         return {'status': "FAIL", 'value': {'error_message': warn_message}}
     
     # 이미지 파일 경로를 설정합니다.
@@ -113,7 +113,7 @@ def verify_user_mobile_card(params):
             f.write(response.content)
     except Exception as e:
         error_message = f"이미지 다운로드 중 오류 발생: {e}"
-        logger.error(f"유저 id: {user_id} - 에러 메세지: {error_message}")
+        logger.error(f"[실패] 유저 id: {user_id} - 에러 메세지: {error_message}")
         return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
 
     try:
@@ -124,21 +124,21 @@ def verify_user_mobile_card(params):
         # 학과 정보가 없는 경우
         if department is None:
             warn_message = '학과 정보를 찾을 수 없습니다.'
-            logger.warn(f"유저 id: {user_id} - 에러 메세지: {warn_message}")
+            logger.warn(f"[실패] 유저 id: {user_id} - 에러 메세지: {warn_message}")
             return {'status': "FAIL", 'value': {'error_message': f'{warn_message} 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
 
         # 유사도가 기준 미달인 경우
         similarity = capture_similarity(test_image_file_path, file_name)
         if similarity < 0.7 or department is None:
             warn_message = '올바르지 않은 이미지입니다. 다시 시도해주세요.'
-            logger.warn(f"유저 id: {user_id} - 에러 메세지: {warn_message}, 유사도: {similarity}")
+            logger.warn(f"[실패] 유저 id: {user_id} - 에러 메세지: {warn_message}, 유사도: {similarity}")
             return {'status': "FAIL", 'value': {'error_message': f'{warn_message} 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
         
         # 학과 정보 매칭
         department_id = match_department(department)
         if department_id is None:
             warn_message = '학과 정보를 찾을 수 없습니다.'
-            logger.warn(f"유저 id: {user_id} - 에러 메세지: {warn_message}")
+            logger.warn(f"[실패] 유저 id: {user_id} - 에러 메세지: {warn_message}")
             return {'status': "FAIL", 'value': {'error_message': f'{warn_message} 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
         
         # 사용자 정보 저장
@@ -146,15 +146,15 @@ def verify_user_mobile_card(params):
             save_user_info(user_id, department_id)
         except Exception as e:
             error_message = f"사용자 정보 저장 중 오류 발생: {e}"
-            logger.error(f"유저 id: {user_id} - 에러 메세지: {error_message}")
+            logger.error(f"[실패] 유저 id: {user_id} - 에러 메세지: {error_message}")
             return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
 
-        logger.info(f"유저 id: {user_id} - {department} 인증 완료")
+        logger.info(f"[성공] 유저 id: {user_id} - {department} 인증 완료, 유사도: {similarity}")
         return {'status': "SUCCESS", 'value': {'department': department}}
     
     except Exception as e:
         error_message = f"이미지 처리 중 오류 발생: {e}"
-        logger.error(f"유저 id: {user_id} - 에러 메세지: {error_message}")
+        logger.error(f"[실패] 유저 id: {user_id} - 에러 메세지: {error_message}")
         return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
     finally:
         os.remove(file_name)
