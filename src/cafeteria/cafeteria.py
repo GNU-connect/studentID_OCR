@@ -4,6 +4,8 @@ from src.response.list_card import ListCard, ListItem
 from src.response.button import Button
 import logging
 import logging.config
+from config.logging import logging_config
+logging.config.dictConfig(logging_config)
 logger = logging.getLogger("cafeteria")
 
 def get_cafeteria_info(user_id, campus_id=None):

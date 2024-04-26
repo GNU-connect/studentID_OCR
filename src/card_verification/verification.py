@@ -15,6 +15,8 @@ from torchvision import models
 import re
 import logging
 import logging.config
+from config.logging import logging_config
+logging.config.dictConfig(logging_config)
 logger = logging.getLogger("card_verification")
 
 # .env 파일을 불러오기 위한 설정
