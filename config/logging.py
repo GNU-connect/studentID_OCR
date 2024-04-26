@@ -33,13 +33,5 @@ logging_config  = {
     'root': {
         'level': 'INFO',
         'handlers': ['file_info', 'file_error']
-    },
-    'cafeteria': {
-        'level': 'INFO',
-        'handlers': ['file_info', 'file_error'],
-    },
-    'card_verification': {
-        'level': 'INFO',
-        'handlers': ['file_info', 'file_error'],
-    },
+    }
 }

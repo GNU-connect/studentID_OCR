@@ -5,8 +5,6 @@ from src.response.button import Button
 import logging
 import logging.config
 from config.logging import logging_config
-logging.config.dictConfig(logging_config)
-logger = logging.getLogger("cafeteria")
 
 def get_cafeteria_info(user_id, campus_id=None):
     cafeteria_list = []
@@ -55,3 +53,7 @@ def get_cafeteria_info(user_id, campus_id=None):
         response = ListCard("어떤 교내 식당 정보가 궁금하세요?", items, buttons)
     logger.info(f"유저 id: {user_id} - {campus_id}번 교내 식당 정보 조회 완료")
     return response.to_dict()
+
+if __name__ == '__main__':
+    logging.config.dictConfig(logging_config)
+    logger = logging.getLogger(__name__)

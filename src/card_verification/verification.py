@@ -16,9 +16,6 @@ import re
 import logging
 import logging.config
 from config.logging import logging_config
-logging.config.dictConfig(logging_config)
-logger = logging.getLogger("card_verification")
-
 # .env 파일을 불러오기 위한 설정
 dotenv_path = join(dirname(dirname(dirname(__file__))), '.env')
 load_dotenv(dotenv_path)
@@ -175,3 +172,7 @@ def match_department(department):
 
     # 매칭이 실패한 경우 None 반환
     return None
+
+if __name__ == '__main__':
+    logging.config.dictConfig(logging_config)
+    logger = logging.getLogger(__name__)
