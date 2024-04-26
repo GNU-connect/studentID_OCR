@@ -6,6 +6,7 @@ from src.card_verification.welcome_message import CreateWelcomeMessage
 from config.logging import logging_config
 import logging
 import logging.config
+import os
 
 PORT = 5000
 app = Flask(__name__)
@@ -25,6 +26,8 @@ def post_verify_mobile_card():
     return result
 
 if __name__ == '__main__':
+    if not os.path.isdir('logs'):
+        os.mkdir('logs')
     logging.config.dictConfig(logging_config)
     logger = logging.getLogger()
     logger.info("     _______. _______ .______      ____    ____  _______ .______           ______   .__   __.")
