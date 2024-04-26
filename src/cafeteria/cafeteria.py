@@ -3,9 +3,6 @@ from src.common.user import get_user_campus_info
 from src.response.list_card import ListCard, ListItem
 from src.response.button import Button
 import logging
-from config.logging import logging_config
-from logging.config import dictConfig
-dictConfig(logging_config)
 logger = logging.getLogger("cafeteria")
 
 def get_cafeteria_info(user_id, campus_id=None):

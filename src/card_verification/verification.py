@@ -14,7 +14,7 @@ import gdown
 from torchvision import models
 import re
 import logging
-logger = logging.getLogger("connect-gnu")
+logger = logging.getLogger("card_verification")
 
 # .env 파일을 불러오기 위한 설정
 dotenv_path = join(dirname(dirname(dirname(__file__))), '.env')
