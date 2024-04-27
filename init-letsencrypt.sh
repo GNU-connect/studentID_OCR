@@ -5,7 +5,7 @@ if ! [ -x "$(command -v docker compose)" ]; then
   exit 1
 fi
 
-domains=(connectgnu.kro.kr www.connectgnu.kro.kr)
+domains="connectgnu.kro.kr"
 rsa_key_size=4096
 data_path="./certbot"
 email="connectgnu2024@gmail.com" # Adding a valid address is strongly recommended
