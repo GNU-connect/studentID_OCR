@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 import gdown
 from torchvision import models
 import re
+from src.utils.slack import Slack_Notifier
 import logging
 logger = logging.getLogger()
 
@@ -114,6 +115,7 @@ def verify_user_mobile_card(params):
     except Exception as e:
         error_message = f"이미지 다운로드 중 오류 발생: {e}"
         logger.error(f"[실패] 유저 id: {user_id} - 에러 메세지: {error_message}")
+        Slack_Notifier().fail(f'[실패] 유저 id: {user_id} - 에러 메세지: {error_message}')
         return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
 
     try:
@@ -147,6 +149,7 @@ def verify_user_mobile_card(params):
         except Exception as e:
             error_message = f"사용자 정보 저장 중 오류 발생: {e}"
             logger.error(f"[실패] 유저 id: {user_id} - 에러 메세지: {error_message}")
+            Slack_Notifier().fail(f'[실패] 유저 id: {user_id} - 에러 메세지: {error_message}')
             return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
 
         logger.info(f"[성공] 유저 id: {user_id} - {department} 인증 완료, 유사도: {similarity}")
@@ -155,6 +158,7 @@ def verify_user_mobile_card(params):
     except Exception as e:
         error_message = f"이미지 처리 중 오류 발생: {e}"
         logger.error(f"[실패] 유저 id: {user_id} - 에러 메세지: {error_message}")
+        Slack_Notifier().fail(f'[실패] 유저 id: {user_id} - 에러 메세지: {error_message}')
         return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
     finally:
         os.remove(file_name)
