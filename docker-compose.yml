@@ -9,9 +9,6 @@ services:
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_KEY=${SUPABASE_KEY}
       - CARD_VARIFICATION_IMAGE_URL=${CARD_VARIFICATION_IMAGE_URL}
-    depends_on:
-      - nginx
-      - certbot
     volumes:
       - ./logs:/app/logs
     networks:
@@ -25,6 +22,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    depends_on:
+      - backend_flask_server
     volumes:
       - ./nginx/conf.d/:/etc/nginx/conf.d/
       - ./certbot/conf:/etc/letsencrypt
@@ -39,6 +38,8 @@ services:
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
+    depends_on:
+      - nginx
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     networks:
       - connect-gnu-network
