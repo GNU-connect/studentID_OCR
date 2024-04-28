@@ -11,9 +11,6 @@ services:
       - CARD_VARIFICATION_IMAGE_URL=${CARD_VARIFICATION_IMAGE_URL}
     volumes:
       - ./logs:/app/logs
-    depends_on:
-      - nginx
-      - certbot
     networks:
       - connect-gnu-network
 
