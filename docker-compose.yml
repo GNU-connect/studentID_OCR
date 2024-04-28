@@ -11,10 +11,6 @@ services:
       - CARD_VARIFICATION_IMAGE_URL=${CARD_VARIFICATION_IMAGE_URL}
     volumes:
       - ./logs:/app/logs
-    depends_on:
-      - nginx
-      - certbot
-    user: root
     networks:
       - connect-gnu-network
 
@@ -26,7 +22,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    user: root
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./certbot/conf:/etc/letsencrypt
@@ -38,7 +33,6 @@ services:
   certbot:
     image: certbot/certbot
     container_name: certbot
-    user: root
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
@@ -55,6 +49,9 @@ services:
     privileged: true
     ports:
       - "8080:8080"
+    depends_on:
+      - nginx
+      - certbot
     volumes:
       - /jenkins:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock

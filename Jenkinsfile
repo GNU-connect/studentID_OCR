@@ -15,9 +15,7 @@ node {
         }
 
         stage('Build') {
-            sh(script: 'docker-compose build nginx')
             sh(script: 'docker-compose build backend_flask_server')
-            sh(script: 'docker-compose build certbot')
         }
 
         stage('Tag') {
@@ -35,9 +33,7 @@ node {
 
         stage('Deploy') {
             sh(script: 'docker-compose down')
-            sh(script: 'docker-compose up -d certbot')
             sh(script: 'docker-compose up -d backend_flask_server')
-            sh(script: 'docker-compose up -d nginx')
         }
     } 
 }
