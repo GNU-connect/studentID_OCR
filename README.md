@@ -1,4 +1,4 @@
-### 개발 환경 설정
+## 개발 환경 설정
 
 1. 도커 설치 (https://docs.docker.com/get-docker/)
 2. 도커 이미지 빌드 (docker build -t connect-gnu-python .)
