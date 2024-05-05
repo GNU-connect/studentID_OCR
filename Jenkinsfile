@@ -12,6 +12,7 @@ node {
         }
 
         stage('Unit Test') {
+            sh 'pytest -e PYTEST_DEBUG=true'
         }
 
         stage('Build') {

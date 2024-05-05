@@ -33,7 +33,8 @@ model.eval()
 drive_file_url = os.environ['CARD_VARIFICATION_IMAGE_URL']
 test_image_file_path = join(dirname(dirname(dirname(__file__))), 'temp', 'test.jpg')
 os.makedirs(os.path.dirname(test_image_file_path), exist_ok=True)
-gdown.download(drive_file_url, test_image_file_path, quiet=False)
+if not os.path.exists(test_image_file_path):
+    gdown.download(drive_file_url, test_image_file_path, quiet=False)
 
 # 이미지 OCR 함수
 def img_ocr(img):
@@ -85,11 +86,20 @@ def save_user_info(user_id, department_id):
     data = {'id': user_id, 'department_id': department_id}
     supabase().table('kakao-user').upsert(data).execute()
 
+# 사용자 정보 확인
+def download_user_mobile_card(value, file_name):
+    try:
+        image_url = value['secureUrls'][5:-1] # 이미지 URL
+        response = requests.get(image_url)
+        with open(file_name, 'wb') as f:
+            f.write(response.content)
+    except Exception as e:
+        raise Exception(f"이미지 다운로드 중 오류 발생: {e}")
+
 # 사용자 모바일 카드 확인
 def verify_user_mobile_card(params):
     value = json.loads(params['action']['params']['mobile_card_image_url'])
     user_id = params['userRequest']['user']['id'] # 사용자 ID
-    image_url = value['secureUrls'][5:-1] # 이미지 URL
     
     # 이미지를 2개 이상 보낸 경우
     if value['imageQuantity'] != '1':
@@ -106,17 +116,8 @@ def verify_user_mobile_card(params):
     
     # 이미지 파일 경로를 설정합니다.
     file_name = join(dirname(dirname(dirname(__file__))), 'temp', f'{user_id}.jpg')
-
-    # 이미지를 다운로드합니다.
-    try:
-        response = requests.get(image_url)
-        with open(file_name, 'wb') as f:
-            f.write(response.content)
-    except Exception as e:
-        error_message = f"이미지 다운로드 중 오류 발생: {e}"
-        logger.error(f"[실패] 유저 id: {user_id} - 에러 메세지: {error_message}")
-        Slack_Notifier().fail(f'[실패] 유저 id: {user_id} - 에러 메세지: {error_message}')
-        return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
+    if os.environ['PYTEST_DEBUG'] is None:
+        download_user_mobile_card(value, file_name)
 
     try:
         # 이미지 OCR 기능을 수행하여 학과 정보를 추출합니다.
@@ -145,7 +146,8 @@ def verify_user_mobile_card(params):
         
         # 사용자 정보 저장
         try:
-            save_user_info(user_id, department_id)
+            if os.environ['PYTEST_DEBUG'] is None:
+                save_user_info(user_id, department_id)
         except Exception as e:
             error_message = f"사용자 정보 저장 중 오류 발생: {e}"
             logger.error(f"[실패] 유저 id: {user_id} - 에러 메세지: {error_message}")
@@ -161,7 +163,8 @@ def verify_user_mobile_card(params):
         Slack_Notifier().fail(f'[실패] 유저 id: {user_id} - 에러 메세지: {error_message}')
         return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
     finally:
-        os.remove(file_name)
+        if os.environ['PYTEST_DEBUG'] is None:
+            os.remove(file_name)
 
 # 학과 정보 매칭
 def match_department(department):

@@ -1,0 +1,18 @@
+version: "3"
+services:
+  backend_flask_server:
+    build: .
+    image: dongho18/connect-gnu-flask:latest
+    container_name: backend_flask_server
+    restart: unless-stopped
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - CARD_VARIFICATION_IMAGE_URL=${CARD_VARIFICATION_IMAGE_URL}
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+      - ./logs:/app/logs
+    platforms:
+      - linux/amd64

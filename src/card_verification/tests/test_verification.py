@@ -19,24 +19,26 @@ def client():
         yield client
 
 def test_verify_user_mobile_card(client):
+    # 로컬 이미지 파일 경로 지정
+    local_image_path = './temp/test.jpg'
+    assert os.path.exists(local_image_path), f"이미지 파일이 존재하지 않습니다: {local_image_path}"
+    
     # 테스트 데이터 준비
-    secure_url = os.getenv('CARD_VARIFICATION_IMAGE_TEST_URL')
     data = {
         'userRequest': {
             'user': {
-                'id': 'test_user_id'
+                'id': 'test'
             }
         },
         'action': {
             'params': {
-                'mobile_card_image_url': f'{{"imageQuantity": "1", "secureUrls": "{secure_url}"}}'
+                'mobile_card_image_url': f'{{"imageQuantity": "1", "secureUrls": ""}}'
             }
         }
     }
 
     # POST 요청을 보내고 응답을 받음
     response = client.post('/api/verify-mobile-card', json=data)
-    print(response.get_json())
     
     # 응답 코드가 200인지 확인
     assert response.status_code == 200, "응답 상태 코드가 200이 아닙니다."
