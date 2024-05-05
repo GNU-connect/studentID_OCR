@@ -116,7 +116,7 @@ def verify_user_mobile_card(params):
     
     # 이미지 파일 경로를 설정합니다.
     file_name = join(dirname(dirname(dirname(__file__))), 'temp', f'{user_id}.jpg')
-    if os.environ['PYTEST_DEBUG'] is None:
+    if os.environ.get('PYTEST_DEBUG', None) is None:
         download_user_mobile_card(value, file_name)
 
     try:
@@ -146,7 +146,7 @@ def verify_user_mobile_card(params):
         
         # 사용자 정보 저장
         try:
-            if os.environ['PYTEST_DEBUG'] is None:
+            if os.environ.get('PYTEST_DEBUG', None) is None:
                 save_user_info(user_id, department_id)
         except Exception as e:
             error_message = f"사용자 정보 저장 중 오류 발생: {e}"
@@ -163,7 +163,7 @@ def verify_user_mobile_card(params):
         Slack_Notifier().fail(f'[실패] 유저 id: {user_id} - 에러 메세지: {error_message}')
         return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
     finally:
-        if os.environ['PYTEST_DEBUG'] is None:
+        if os.environ.get('PYTEST_DEBUG', None) is None:
             os.remove(file_name)
 
 # 학과 정보 매칭
