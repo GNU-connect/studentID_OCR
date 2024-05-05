@@ -30,7 +30,7 @@ model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
 model.eval()
 
 # test 이미지 저장 경로 설정
-drive_file_url = os.environ['CARD_VARIFICATION_IMAGE_URL']
+drive_file_url = os.getenv['CARD_VARIFICATION_IMAGE_URL']
 test_image_file_path = join(dirname(dirname(dirname(__file__))), 'temp', 'test.jpg')
 os.makedirs(os.path.dirname(test_image_file_path), exist_ok=True)
 if not os.path.exists(test_image_file_path):
@@ -116,7 +116,7 @@ def verify_user_mobile_card(params):
     
     # 이미지 파일 경로를 설정합니다.
     file_name = join(dirname(dirname(dirname(__file__))), 'temp', f'{user_id}.jpg')
-    if os.environ.get('PYTEST_DEBUG', None) is None:
+    if os.getenv("FLASK_ENV") != 'test':
         download_user_mobile_card(value, file_name)
 
     try:
@@ -146,7 +146,7 @@ def verify_user_mobile_card(params):
         
         # 사용자 정보 저장
         try:
-            if os.environ.get('PYTEST_DEBUG', None) is None:
+            if os.getenv("FLASK_ENV") != 'test':
                 save_user_info(user_id, department_id)
         except Exception as e:
             error_message = f"사용자 정보 저장 중 오류 발생: {e}"
@@ -163,7 +163,7 @@ def verify_user_mobile_card(params):
         Slack_Notifier().fail(f'[실패] 유저 id: {user_id} - 에러 메세지: {error_message}')
         return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
     finally:
-        if os.environ.get('PYTEST_DEBUG', None) is None:
+        if os.getenv("FLASK_ENV") != 'test':
             os.remove(file_name)
 
 # 학과 정보 매칭
