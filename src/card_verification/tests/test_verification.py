@@ -36,38 +36,29 @@ def test_verify_user_mobile_card(client):
 
     # POST 요청을 보내고 응답을 받음
     response = client.post('/api/verify-mobile-card', json=data)
+    print(response.get_json())
     
     # 응답 코드가 200인지 확인
-    assert response.status_code == 200
-    
+    assert response.status_code == 200, "응답 상태 코드가 200이 아닙니다."
+
     # 응답 JSON 데이터 검증
     response_json = response.get_json()
-
-    # 응답 구조를 검증
-    assert 'version' in response_json
-    assert response_json['version'] == '2.0'
     
-    # 응답에서 'template' 키 확인
-    assert 'template' in response_json
-
+    # 응답의 버전과 템플릿 검증
+    assert response_json.get('version') == '2.0', "응답 버전이 예상된 값과 일치하지 않습니다."
+    assert 'template' in response_json, "'template' 키가 응답 JSON 데이터에 존재하지 않습니다."
+    
     # 'template'의 'outputs' 리스트 확인
-    outputs = response_json['template']['outputs']
-    assert isinstance(outputs, list)
-    assert len(outputs) > 0  # 리스트가 비어 있지 않은지 확인
+    outputs = response_json['template'].get('outputs', [])
+    assert isinstance(outputs, list), "'outputs'가 리스트가 아닙니다."
+    assert outputs, "'outputs' 리스트가 비어 있습니다."
 
     # 'outputs'의 첫 번째 요소 검증
     list_card = outputs[0].get('basicCard')
-    assert list_card is not None
+    assert list_card is not None, "'basicCard'가 None 입니다."
 
-    # 'listCard'의 'title' 확인
-    title = list_card.get('title')
-    assert title is not None
-
-    # 'listCard'의 'description' 확인
-    description = list_card.get('description')
-    assert description is not None
-
-    # 'listCard'의 'thumbnail' 확인
+    # 'list_card'의 'title', 'description', 'thumbnail' 검증
+    assert 'title' in list_card, "'title'이 'basicCard'에 없습니다."
+    assert 'description' in list_card, "'description'이 'basicCard'에 없습니다."
     thumbnail = list_card.get('thumbnail')
-    assert thumbnail is not None
-    assert 'imageUrl' in thumbnail
+    assert thumbnail and 'imageUrl' in thumbnail, "'thumbnail' 또는 'imageUrl'이 없습니다."
