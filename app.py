@@ -11,10 +11,6 @@ import os
 PORT = 5000
 app = Flask(__name__)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
 @app.route('/api/cafeteria', methods=['POST'])
 def get_cafeteria():
     data = request.json
