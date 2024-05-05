@@ -30,7 +30,7 @@ model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
 model.eval()
 
 # test 이미지 저장 경로 설정
-drive_file_url = os.getenv['CARD_VARIFICATION_IMAGE_URL']
+drive_file_url = os.getenv('CARD_VARIFICATION_IMAGE_URL')
 test_image_file_path = join(dirname(dirname(dirname(__file__))), 'temp', 'test.jpg')
 os.makedirs(os.path.dirname(test_image_file_path), exist_ok=True)
 if not os.path.exists(test_image_file_path):
