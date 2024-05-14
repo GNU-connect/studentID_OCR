@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, jsonify
 from flask import request
 from src.cafeteria.cafeteria import get_cafeteria_info
 import src.card_verification.verification as verification
@@ -7,8 +7,19 @@ from config.logging import logging_config
 import logging
 import logging.config
 import os
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
+from dotenv import load_dotenv
+load_dotenv(verbose=True)
 
 PORT = 5000
+sentry_sdk.init(
+    dsn=os.getenv('SENTRY_DSN'),
+    enable_tracing=True,
+    integrations=[FlaskIntegration()],
+    traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,
+)
 app = Flask(__name__)
 
 @app.route('/api/cafeteria', methods=['POST'])
