@@ -1,18 +1,15 @@
-from flask import Flask, jsonify
-from flask import request
-from src.cafeteria.cafeteria import get_cafeteria_info
-import src.card_verification.verification as verification
-from src.card_verification.welcome_message import CreateWelcomeMessage
+from flask import Flask
 from config.logging import logging_config
 import logging
 import logging.config
 import os
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
+from src.controllers.cafeteria_controller import cafeteria_bp
+from src.controllers.card_verification_controller import card_verification_bp
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
 
-PORT = 5000
 sentry_sdk.init(
     dsn=os.getenv('SENTRY_DSN'),
     enable_tracing=True,
@@ -22,21 +19,11 @@ sentry_sdk.init(
 )
 app = Flask(__name__)
 
-@app.route('/api/cafeteria', methods=['POST'])
-def get_cafeteria():
-    data = request.json
-    user_id = data['userRequest']['user']['id']
-    campus_id = data['action']['clientExtra']['sys_campus_id'] if 'sys_campus_id' in data['action']['clientExtra'] else None
-    response = get_cafeteria_info(user_id, campus_id)
-    return response
-    
-@app.route('/api/verify-mobile-card', methods=['POST'])
-def post_verify_mobile_card():
-    certification_result = verification.verify_user_mobile_card(request.json)
-    result = CreateWelcomeMessage(certification_result).create_message()
-    return result
+app.register_blueprint(cafeteria_bp, url_prefix='/api/cafeteria')
+app.register_blueprint(card_verification_bp, url_prefix='/api/verify-mobile-card')
 
 if __name__ == '__main__':
+    PORT = int(os.getenv('PORT', 5000))
     if not os.path.isdir('logs'):
         os.mkdir('logs')
     logging.config.dictConfig(logging_config)
