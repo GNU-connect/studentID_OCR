@@ -2,7 +2,7 @@ import sys
 import os
 current_file_path = os.path.abspath(__file__)
 current_dir = os.path.dirname(current_file_path)
-base_dir = os.path.join(current_dir, '../')
+base_dir = os.path.join(current_dir, '../../../')
 sys.path.append(base_dir)
 
 logging_config  = {
