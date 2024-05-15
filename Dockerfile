@@ -27,4 +27,4 @@ COPY . .
 
 EXPOSE 5000
 
-CMD ["python", "-u", "app.py"]
+CMD ["run", "--host", "0.0.0.0"]
