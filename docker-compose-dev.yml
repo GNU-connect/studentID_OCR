@@ -9,6 +9,7 @@ services:
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_KEY=${SUPABASE_KEY}
       - CARD_VARIFICATION_IMAGE_URL=${CARD_VARIFICATION_IMAGE_URL}
+      - FLASK_DEBUG=True
     ports:
       - "5000:5000"
     volumes:
