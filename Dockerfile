@@ -1,5 +1,7 @@
 FROM python:3.11
 
+COPY pip.conf /root/.config/pip/pip.conf
+
 WORKDIR /app
 
 # 필요한 패키지 설치
@@ -16,7 +18,7 @@ RUN mkdir -p /usr/share/tesseract-ocr/4.00/tessdata/ \
 # Python 패키지 설치
 COPY requirements.txt .
 RUN pip3 install --upgrade pip \
-   &&  pip3 install --no-cache-dir -r requirements.txt -i http://ftp.daumkakao.com/pypi/simple --trusted-host ftp.daumkakao.com --default-timeout=600
+   &&  pip3 install --no-cache-dir -r requirements.txt --default-timeout=600
 
 # 환경 변수 설정
 ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
