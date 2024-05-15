@@ -1,5 +1,7 @@
 FROM python:3.11
 
+COPY pip.conf /root/.config/pip/pip.conf
+
 WORKDIR /app
 
 # 필요한 패키지 설치

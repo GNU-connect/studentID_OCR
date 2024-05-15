@@ -1,5 +1,5 @@
 from src.utils.supabase import supabase
-from src.common.user import get_user_campus_info
+from src.models.user_dao import get_user_campus_info
 from src.response.list_card import ListCard, ListItem
 from src.response.button import Button
 import logging
