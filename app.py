@@ -20,8 +20,8 @@ sentry_sdk.init(
 
 app = Flask(__name__)
 
-app.register_blueprint(cafeteria_bp, url_prefix='/api/cafeteria')
-app.register_blueprint(card_verification_bp, url_prefix='/api/verify-mobile-card')
+app.register_blueprint(cafeteria_bp, url_prefix='/api/flask/cafeteria')
+app.register_blueprint(card_verification_bp, url_prefix='/api/flask/verify-mobile-card')
 
 if __name__ == '__main__':
     PORT = int(os.getenv('PORT', 5000))
