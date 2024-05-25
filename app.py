@@ -1,22 +1,14 @@
 from flask import Flask
+import os
+if os.getenv('SENTRY_DSN'):
+    import src.common.utils.sentry
 from src.common.utils.logging import logging_config
 import logging
 import logging.config
-import os
 from src.controllers.cafeteria_controller import cafeteria_bp
 from src.controllers.card_verification_controller import card_verification_bp
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
-import sentry_sdk
-from sentry_sdk.integrations.flask import FlaskIntegration
-
-sentry_sdk.init(
-    dsn=os.getenv('SENTRY_DSN'),
-    enable_tracing=True,
-    integrations=[FlaskIntegration()],
-    traces_sample_rate=1.0,
-    profiles_sample_rate=1.0,
-)
 
 app = Flask(__name__)
 
