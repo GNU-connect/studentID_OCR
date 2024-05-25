@@ -36,5 +36,14 @@ node {
             sh(script: 'docker-compose down')
             sh(script: 'docker-compose up -d backend_flask_server')
         }
-    } 
+    }
+
+    post {
+        success {
+            slackSend(channel: '#channel-name', color: 'good', message: "Deployment succeeded: ${env.JOB_NAME} build ${env.BUILD_NUMBER}")
+        }
+        failure {
+            slackSend(channel: '#channel-name', color: 'danger', message: "Deployment failed: ${env.JOB_NAME} build ${env.BUILD_NUMBER}")
+        }
+    }
 }
