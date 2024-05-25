@@ -11,7 +11,6 @@ from dotenv import load_dotenv
 load_dotenv(verbose=True)
 
 app = Flask(__name__)
-print(os.getenv('SENTRY_DSN'))
 
 sentry_sdk.init(
     dsn=os.getenv('SENTRY_DSN'),
@@ -30,6 +29,7 @@ if __name__ == '__main__':
         os.mkdir('logs')
     logging.config.dictConfig(logging_config)
     logger = logging.getLogger()
+    logger.error('SENTRY_DSN='+os.getenv('SENTRY_DSN'))
     logger.info(r"     _______. _______ .______      ____    ____  _______ .______           ______   .__   __.")
     logger.info(r"    /       ||   ____||   _  \     \   \  /   / |   ____||   _  \         /  __  \  |  \ |  |")
     logger.info(r"   |   (----`|  |__   |  |_)  |     \   \/   /  |  |__   |  |_)  |       |  |  |  | |   \|  |")
