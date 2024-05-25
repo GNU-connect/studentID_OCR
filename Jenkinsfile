@@ -7,15 +7,13 @@ node {
          usernameVariable: 'DOCKER_USER_ID', 
          passwordVariable: 'DOCKER_USER_PASSWORD']
     ]) {
-        def startTime = System.currentTimeMillis()
-
         try {
             stage('Pull') {
                 git branch: 'main', url: 'https://github.com/GNU-connect/studentID_OCR.git' 
             }
 
             stage('Post Slack') {
-                slackSend(channel: '#build-notification', color: 'warning', message: "Build started: ${env.JOB_NAME} build ${env.BUILD_NUMBER}")
+                slackSend(channel: '#build-notification', color: 'warning', message: "빌드 시작: 지누가 ${env.JOB_NAME} 서버 ${env.BUILD_NUMBER} 버전을 열심히 빌드중이야!")
             }
 
             stage('Unit Test') {
@@ -45,16 +43,10 @@ node {
             }
 
             stage('Post Slack') {
-                def endTime = System.currentTimeMillis()
-                def duration = (endTime - startTime) / 1000
-                def durationStr = String.format("%d min, %d sec", duration / 60, duration % 60)
-                slackSend(channel: '#build-notification', color: 'good', message: "Deployment succeeded: ${env.JOB_NAME} build ${env.BUILD_NUMBER} in ${durationStr}")
+                slackSend(channel: '#build-notification', color: 'good', message: "빌드 성공: 야호! ${env.JOB_NAME} 서버 ${env.BUILD_NUMBER} 버전이 성공적으로 배포되었어!")
             }
         } catch (Exception e) {
-            def endTime = System.currentTimeMillis()
-            def duration = (endTime - startTime) / 1000
-            def durationStr = String.format("%d min, %d sec", duration / 60, duration % 60)
-            slackSend(channel: '#build-notification', color: 'danger', message: "Deployment failed: ${env.JOB_NAME} build ${env.BUILD_NUMBER} in ${durationStr}\nFailure reason: ${e.getMessage()}")
+            slackSend(channel: '#build-notification', color: 'danger', message: "빌드 실패: 이런... ${env.JOB_NAME} 서버 ${env.BUILD_NUMBER} 버전 빌드에 실패했어 ㅜㅜ\n사유: ${e.getMessage()}")
             throw e
         }   
     }
