@@ -10,8 +10,6 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
 
-app = Flask(__name__)
-
 sentry_sdk.init(
     dsn=os.getenv('SENTRY_DSN'),
     enable_tracing=True,
@@ -19,6 +17,8 @@ sentry_sdk.init(
     traces_sample_rate=1.0,
     profiles_sample_rate=1.0,
 )
+
+app = Flask(__name__)
 
 app.register_blueprint(cafeteria_bp, url_prefix='/api/flask/cafeteria')
 app.register_blueprint(card_verification_bp, url_prefix='/api/flask/verify-mobile-card')
@@ -29,7 +29,6 @@ if __name__ == '__main__':
         os.mkdir('logs')
     logging.config.dictConfig(logging_config)
     logger = logging.getLogger()
-    logger.error('SENTRY_DSN='+os.getenv('SENTRY_DSN'))
     logger.info(r"     _______. _______ .______      ____    ____  _______ .______           ______   .__   __.")
     logger.info(r"    /       ||   ____||   _  \     \   \  /   / |   ____||   _  \         /  __  \  |  \ |  |")
     logger.info(r"   |   (----`|  |__   |  |_)  |     \   \/   /  |  |__   |  |_)  |       |  |  |  | |   \|  |")
