@@ -37,6 +37,10 @@ os.makedirs(os.path.dirname(test_image_file_path), exist_ok=True)
 if not os.path.exists(test_image_file_path):
     gdown.download(drive_file_url, test_image_file_path, quiet=False)
 
+# gray scale 이미지로 변환
+def gray_scale(img):
+    return img.convert('L')
+
 # 이미지 OCR 함수
 def img_ocr(img):
     custom_configs = [r'-l kor+eng --oem 3 --psm 6']
@@ -121,7 +125,7 @@ def verify_user_mobile_card(params):
     try:
         # 이미지 OCR 기능을 수행하여 학과 정보를 추출합니다.
         img = Image.open(file_name)
-        department = img_ocr(img)
+        department = img_ocr(gray_scale(img))
 
         # 학과 정보가 없는 경우
         if department is None:
