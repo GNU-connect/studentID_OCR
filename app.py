@@ -1,6 +1,5 @@
 from flask import Flask
 import os
-from src.common.utils.slack import Slack_Notifier
 from src.common.utils.logging import logging_config
 import logging
 import logging.config
@@ -10,8 +9,6 @@ import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
-
-Slack_Notifier().fail(os.getenv("FLASK_ENV"))
 
 sentry_sdk.init(
     dsn=os.getenv('SENTRY_DSN'),
