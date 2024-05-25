@@ -12,14 +12,13 @@ load_dotenv(verbose=True)
 
 app = Flask(__name__)
 
-if os.getenv('SENTRY_DSN'):
-    sentry_sdk.init(
-        dsn=os.getenv('SENTRY_DSN'),
-        enable_tracing=True,
-        integrations=[FlaskIntegration()],
-        traces_sample_rate=1.0,
-        profiles_sample_rate=1.0,
-    )
+sentry_sdk.init(
+    dsn=os.getenv('SENTRY_DSN'),
+    enable_tracing=True,
+    integrations=[FlaskIntegration()],
+    traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,
+)
 
 app.register_blueprint(cafeteria_bp, url_prefix='/api/flask/cafeteria')
 app.register_blueprint(card_verification_bp, url_prefix='/api/flask/verify-mobile-card')
