@@ -1,4 +1,6 @@
 node {
+    def startTime = System.currentTimeMillis()
+
     git branch: 'main', poll: true, url: 'https://github.com/GNU-connect/studentID_OCR.git'
 
     withCredentials([
@@ -9,6 +11,10 @@ node {
     ]) {
         stage('Pull') {
             git branch: 'main', url: 'https://github.com/GNU-connect/studentID_OCR.git' 
+        }
+
+        stage('Post Slack') {
+            slackSend(channel: '#build-notification', color: 'warning', message: "Build started: ${env.JOB_NAME} build ${env.BUILD_NUMBER}")
         }
 
         stage('Unit Test') {
@@ -39,11 +45,20 @@ node {
     }
 
     post {
+        always {
+            def endTime = System.currentTimeMillis()
+            def duration = (endTime - startTime) / 1000
+            def durationStr = String.format("%d min, %d sec", duration / 60, duration % 60)
+        }
+
         success {
-            slackSend(channel: '#channel-name', color: 'good', message: "Deployment succeeded: ${env.JOB_NAME} build ${env.BUILD_NUMBER}")
+            slackSend(channel: '#build-notification', color: 'good', message: "Deployment succeeded: ${env.JOB_NAME} build ${env.BUILD_NUMBER} in ${durationStr}")
         }
         failure {
-            slackSend(channel: '#channel-name', color: 'danger', message: "Deployment failed: ${env.JOB_NAME} build ${env.BUILD_NUMBER}")
+            script {
+                def failedStage = currentBuild.rawBuild.getLog(10).find { it.contains('Stage') }
+                slackSend(channel: '#build-notification', color: 'danger', message: "Deployment failed: ${env.JOB_NAME} build ${env.BUILD_NUMBER} in ${durationStr}\nFailure reason: ${currentBuild.description ?: 'Unknown reason'}\nFailed stage: ${failedStage}")
+            }
         }
     }
 }
