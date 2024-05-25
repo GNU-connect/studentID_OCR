@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 load_dotenv(verbose=True)
 
 app = Flask(__name__)
+print(os.getenv('SENTRY_DSN'))
 
 sentry_sdk.init(
     dsn=os.getenv('SENTRY_DSN'),
