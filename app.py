@@ -1,6 +1,6 @@
 from flask import Flask
 import os
-from common.utils.slack import Slack_Notifier
+from src.common.utils.slack import Slack_Notifier
 from src.common.utils.logging import logging_config
 import logging
 import logging.config
