@@ -2,26 +2,34 @@ FROM python:3.11
 
 COPY pip.conf /root/.config/pip/pip.conf
 
-WORKDIR /app
+ENV DEBIAN_FRONTEND=noninteractive
 
-# 필요한 패키지 설치
-RUN apt-get update && apt-get install -y \
-    tesseract-ocr \
-    libtesseract-dev \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Update and install depedencies
+RUN apt-get update && \
+    apt-get install -y wget unzip bc vim python3-pip libleptonica-dev git
+RUN apt-get install -y --reinstall make && \
+    apt-get install -y g++ autoconf automake libtool pkg-config libpng-dev libjpeg8-dev libtiff5-dev libicu-dev \
+        libpango1.0-dev autoconf-archive
+
+WORKDIR /app
+COPY requirements.txt .
 
 # Tesseract 언어팩(kor) 다운로드 및 설치
-RUN mkdir -p /usr/share/tesseract-ocr/4.00/tessdata/ \
-    && curl -L -o /usr/share/tesseract-ocr/4.00/tessdata/kor.traineddata https://github.com/tesseract-ocr/tessdata/raw/main/kor.traineddata
+RUN mkdir src && cd /app/src && \
+    wget https://github.com/tesseract-ocr/tesseract/archive/5.1.0.zip && \
+	unzip 5.1.0.zip && \
+    cd /app/src/tesseract-5.1.0 && ./autogen.sh && ./configure && make && make install && ldconfig && \
+    make training && make training-install && \
+    cd /usr/local/share/tessdata && \
+    wget https://github.com/tesseract-ocr/tessdata_best/raw/main/kor.traineddata
+
+ENV TESSDATA_PREFIX=/usr/local/share/tessdata
 
 # Python 패키지 설치
-COPY requirements.txt .
 RUN pip3 install --upgrade pip \
-   &&  pip3 install --no-cache-dir -r requirements.txt --default-timeout=600
+   &&  pip3 install --no-cache-dir -r requirements.txt
 
 # 환경 변수 설정
-ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
 ENV PYTHONUNBUFFERED 1
 
 # 애플리케이션 코드 복사

@@ -37,15 +37,11 @@ os.makedirs(os.path.dirname(test_image_file_path), exist_ok=True)
 if not os.path.exists(test_image_file_path):
     gdown.download(drive_file_url, test_image_file_path, quiet=False)
 
-# gray scale 이미지로 변환
-def gray_scale(img):
-    return img.convert('L')
-
 # 이미지 OCR 함수
 def img_ocr(img):
-    custom_configs = [r'-l kor+eng --oem 3 --psm 6']
+    custom_configs = [r'--oem 1 --psm 4', r'--oem 3 --psm 6', r'--oem 1 --psm 3']
     for config in custom_configs:
-        texts = pytesseract.image_to_string(img, config=config)
+        texts = pytesseract.image_to_string(img, lang='kor', config=config)
         text_list = [text.strip() for text in texts.split('\n')]
         
         for text in text_list:
@@ -125,7 +121,7 @@ def verify_user_mobile_card(params):
     try:
         # 이미지 OCR 기능을 수행하여 학과 정보를 추출합니다.
         img = Image.open(file_name)
-        department = img_ocr(gray_scale(img))
+        department = img_ocr(img)
 
         # 학과 정보가 없는 경우
         if department is None:
