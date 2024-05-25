@@ -8,7 +8,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y wget unzip bc vim python3-pip libleptonica-dev git
 RUN apt-get install -y --reinstall make && \
-    apt-get install -y g++ autoconf automake libtool pkg-config libpng-dev libjpeg8-dev libtiff5-dev libicu-dev \
+    apt-get install -y g++ autoconf automake libtool pkg-config libpng-dev libtiff5-dev libicu-dev \
         libpango1.0-dev autoconf-archive
 
 WORKDIR /app
