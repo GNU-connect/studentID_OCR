@@ -91,6 +91,7 @@ def verify_user_mobile_card(user_id, image_url):
             
             # 코사인 유사도 계산
             similarity = cos_sim(original_embedding, test_embedding)
+            logger.info(f"유사도: {similarity}")
             
             return similarity
         except Exception as e:
@@ -128,7 +129,7 @@ def verify_user_mobile_card(user_id, image_url):
         similarity = capture_similarity(test_image_file_path, file_name)
         if similarity < 0.7:
             warn_message = '올바르지 않은 이미지입니다. 다시 시도해주세요.'
-            logger.warn(f"{warn_message} - 유사도: {similarity}")
+            logger.warn(f"{warn_message}")
             return {'status': "FAIL", 'value': {'error_message': f'{warn_message} 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
         
         # 이미지 로드
