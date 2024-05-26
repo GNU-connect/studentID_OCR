@@ -16,8 +16,8 @@ COPY requirements.txt .
 
 # Tesseract 언어팩(kor) 다운로드 및 설치
 RUN mkdir src && cd /app/src && \
-    wget https://github.com/tesseract-ocr/tesseract/archive/5.1.0.zip && \
-	unzip 5.1.0.zip && \
+    wget https://github.com/tesseract-ocr/tesseract/archive/5.3.3.zip && \
+	unzip 5.3.3.zip && \
     cd /app/src/tesseract-5.1.0 && ./autogen.sh && ./configure && make && make install && ldconfig && \
     make training && make training-install && \
     cd /usr/local/share/tessdata && \
