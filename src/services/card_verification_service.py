@@ -49,18 +49,19 @@ def verify_user_mobile_card(user_id, image_url):
     
     # 이미지 OCR 함수
     def img_ocr(img):
-        config = '--oem 3 --psm 6'
+        configs = [r'--oem 1 --psm 4', r'--oem 3 --psm 6', r'--oem 1 --psm 3']
         try:
-            img = img.convert('L') # 흑백 이미지로 변환
-            texts = pytesseract.image_to_string(img, lang='kor', config=config)
-            text_list = [text.strip() for text in texts.split('\n')]
-            logger.info(f"OCR 결과: {text_list}")
-            
-            for text in text_list:
-                text = re.sub(r'\s+', '', text)
-                logger.info(f"학과 정보: {text}")
-                if text in departments:
-                    return text
+            for config in configs:
+                img = img.convert('L') # 흑백 이미지로 변환
+                texts = pytesseract.image_to_string(img, lang='kor', config=config)
+                text_list = [text.strip() for text in texts.split('\n')]
+                logger.info(f"OCR 결과: {text_list}")
+                
+                for text in text_list:
+                    text = re.sub(r'\s+', '', text)
+                    logger.info(f"학과 정보: {text}")
+                    if text in departments:
+                        return text
         except Exception as e:
             logger.error(e)
     
