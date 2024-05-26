@@ -135,11 +135,11 @@ def verify_user_mobile_card(user_id, image_url):
         img = Image.open(file_name)
         department = img_ocr(img)
 
-        # 예외 처리: 학과 정보가 없는 경우
+        # 예외 처리: 서비스에서 등록되지 않은 학과인 경우
         if department is None:
-            warn_message = '모바일 카드에서 학과 정보를 인식할 수 없습니다. 다시 시도해주세요.'
+            warn_message = '학과 정보를 확인할 수 없습니다. 상담직원에게 문의해주시면 확인해드리겠습니다.'
             logger.error(warn_message)
-            return {'status': "FAIL", 'value': {'error_message': f'{warn_message} 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
+            return {'status': "FAIL", 'value': {'error_message': f'{warn_message}'}}
         
         # 사용자 정보 저장
         if os.getenv("FLASK_ENV") != 'test':
