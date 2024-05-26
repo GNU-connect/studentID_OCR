@@ -42,6 +42,7 @@ def img_ocr(img):
     custom_configs = [r'--oem 1 --psm 4', r'--oem 3 --psm 6', r'--oem 1 --psm 3']
     for config in custom_configs:
         texts = pytesseract.image_to_string(img, lang='kor', config=config)
+        logger.info(f"OCR 결과: {texts}")
         text_list = [text.strip() for text in texts.split('\n')]
         
         for text in text_list:
