@@ -3,7 +3,6 @@ import os
 from src.common.utils.logging import logging_config
 import logging
 import logging.config
-from src.controllers.cafeteria_controller import cafeteria_bp
 from src.controllers.card_verification_controller import card_verification_bp
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
@@ -21,7 +20,6 @@ if os.getenv('SENTRY_DSN'):
 
 app = Flask(__name__)
 
-app.register_blueprint(cafeteria_bp, url_prefix='/api/flask/cafeteria')
 app.register_blueprint(card_verification_bp, url_prefix='/api/flask/verify-mobile-card')
 
 if __name__ == '__main__':
