@@ -8,7 +8,7 @@
 ## How to Run
 
 ```
-docker compose -f ./docker-compose-dev.yml up --build
+docker compose -f ./docker-compose-dev.yml up
 ```
 
 - 첫 실행 시 오랜 시간이 소요될 수도 있습니다. (10분 이상)
