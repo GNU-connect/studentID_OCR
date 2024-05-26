@@ -100,25 +100,20 @@ def download_user_mobile_card(value, file_name):
         raise Exception(f"이미지 다운로드 중 오류 발생: {e}")
 
 # 사용자 모바일 카드 확인
-def verify_user_mobile_card(params):
-    value = json.loads(params['action']['params']['mobile_card_image_url'])
-    user_id = params['userRequest']['user']['id'] # 사용자 ID
-    
-    # 이미지를 2개 이상 보낸 경우
-    if value['imageQuantity'] != '1':
-        warn_message = '이미지를 1개만 보내주세요.'
-        return {'status': "FAIL", 'value': {'error_message': warn_message}}
-
-    # DB에 사용자 정보가 있는지 확인합니다.
+def verify_user_mobile_card(user_id, image_url):
     user_info = supabase().table('kakao-user').select('id').eq('id', user_id).execute().data
+
+    # 예외 처리: 이미 인증된 사용자인 경우
     if user_info:
         warn_message = '이미 인증된 사용자입니다.'
         return {'status': "FAIL", 'value': {'error_message': warn_message}}
     
     # 이미지 파일 경로를 설정합니다.
     file_name = join(dirname(dirname(dirname(__file__))), 'temp', f'{user_id}.jpg')
+
+    # 이미지 다운로드
     if os.getenv("FLASK_ENV") != 'test':
-        download_user_mobile_card(value, file_name)
+        download_user_mobile_card(image_url, file_name)
 
     try:
         # 이미지 OCR 기능을 수행하여 학과 정보를 추출합니다.
