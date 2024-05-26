@@ -7,7 +7,6 @@ from numpy.linalg import norm
 import requests
 from PIL import Image
 import os
-import json
 from os.path import join, dirname
 from dotenv import load_dotenv
 import gdown
@@ -37,111 +36,115 @@ os.makedirs(os.path.dirname(test_image_file_path), exist_ok=True)
 if not os.path.exists(test_image_file_path):
     gdown.download(drive_file_url, test_image_file_path, quiet=False)
 
-# 이미지 OCR 함수
-def img_ocr(img):
-    custom_configs = [r'--oem 1 --psm 4', r'--oem 3 --psm 6', r'--oem 1 --psm 3']
-    for config in custom_configs:
-        texts = pytesseract.image_to_string(img, lang='kor', config=config)
-        text_list = [text.strip() for text in texts.split('\n')]
-        logger.info(f"OCR 결과: {text_list}")
-        
-        for text in text_list:
-            text = re.sub(r'\s+', '', text)
-            logger.info(f"학과 정보: {text}")
-            if text in departments:
-                return text
-    return None
-
-# 이미지 로드 및 전처리 함수
-def image_preprocess(image_path):
-    image = Image.open(image_path).convert("RGB")
-    preprocess = T.Compose([
-        T.Resize(224),
-        T.CenterCrop(224),
-        T.ToTensor(),
-        T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    ])
-    return preprocess(image).unsqueeze(0)
-
-# 코사인 유사도 계산 함수
-def cos_sim(A, B):
-    return dot(A, B) / (norm(A) * norm(B))
-
-# 특성 추출 및 유사도 계산 함수
-def capture_similarity(original_image_path, test_image_path):
-    # 이미지 전처리
-    original_image = image_preprocess(original_image_path)
-    test_image = image_preprocess(test_image_path)
-    
-    # 특성 추출
-    with torch.no_grad():
-        original_embedding = model(original_image).flatten().numpy()
-        test_embedding = model(test_image).flatten().numpy()
-    
-    # 코사인 유사도 계산
-    similarity = cos_sim(original_embedding, test_embedding)
-    
-    return similarity
-
-# 데이터베이스에 사용자 정보 저장
-def save_user_info(user_id, department_id):
-    # 'kakao-user' 테이블에 데이터 삽입
-    data = {'id': user_id, 'department_id': department_id}
-    supabase().table('kakao-user').upsert(data).execute()
-
-# 사용자 정보 확인
-def download_user_mobile_card(image_url, file_name):
-    try:
-        response = requests.get(image_url)
-        with open(file_name, 'wb') as f:
-            f.write(response.content)
-    except Exception as e:
-        raise Exception(f"이미지 다운로드 중 오류 발생: {e}")
-
 # 사용자 모바일 카드 확인
 def verify_user_mobile_card(user_id, image_url):
-    user_info = supabase().table('kakao-user').select('id').eq('id', user_id).execute().data
-    # 예외 처리: 이미 인증된 사용자인 경우
-    if user_info:
-        warn_message = '이미 인증된 사용자입니다.'
-        return {'status': "FAIL", 'value': {'error_message': warn_message}}
+    # 이미지 다운로드 함수
+    def download_user_mobile_card(image_url, file_name):
+        try:
+            response = requests.get(image_url)
+            with open(file_name, 'wb') as f:
+                f.write(response.content)
+        except Exception as e:
+            logger.error(e)
     
-    # 이미지 파일 경로를 설정합니다.
-    file_name = join(dirname(dirname(dirname(__file__))), 'temp', f'{user_id}.jpg')
+    # 이미지 OCR 함수
+    def img_ocr(img):
+        config = '--oem 3 --psm 6'
+        try:
+            img = img.convert('L') # 흑백 이미지로 변환
+            texts = pytesseract.image_to_string(img, lang='kor', config=config)
+            text_list = [text.strip() for text in texts.split('\n')]
+            logger.info(f"OCR 결과: {text_list}")
+            
+            for text in text_list:
+                text = re.sub(r'\s+', '', text)
+                logger.info(f"학과 정보: {text}")
+                if text in departments:
+                    return text
+        except Exception as e:
+            logger.error(e)
+    
+    # 특성 추출 및 유사도 계산 함수
+    def capture_similarity(original_image_path, test_image_path):
+        # 이미지 로드 및 전처리 함수
+        def image_preprocess(image_path):
+            image = Image.open(image_path).convert("RGB")
+            preprocess = T.Compose([
+                T.Resize(224),
+                T.CenterCrop(224),
+                T.ToTensor(),
+                T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            ])
+            return preprocess(image).unsqueeze(0)
+        
+        def cos_sim(A, B):
+            return dot(A, B) / (norm(A) * norm(B))
+        try:
+            # 이미지 전처리
+            original_image = image_preprocess(original_image_path)
+            test_image = image_preprocess(test_image_path)
+            
+            # 특성 추출
+            with torch.no_grad():
+                original_embedding = model(original_image).flatten().numpy()
+                test_embedding = model(test_image).flatten().numpy()
+            
+            # 코사인 유사도 계산
+            similarity = cos_sim(original_embedding, test_embedding)
+            
+            return similarity
+        except Exception as e:
+            logger.error(e)
 
-    # 이미지 다운로드
-    if os.getenv("FLASK_ENV") != 'test':
-        download_user_mobile_card(image_url, file_name)
+    # 데이터베이스에 사용자 정보 저장
+    def save_user_info(user_id, department_id):
+        # 'kakao-user' 테이블에 데이터 삽입
+        data = {'id': user_id, 'department_id': department_id}
+        supabase().table('kakao-user').upsert(data).execute()
+    
+    # 학과 정보 매칭
+    def match_department(department):
+        for row in supabase_response:
+            if row['department_ko'] == department:
+                return row['id']
+        return None
 
     try:
-        # 이미지 OCR 기능을 수행하여 학과 정보를 추출합니다.
+        user_info = supabase().table('kakao-user').select('id').eq('id', user_id).execute().data
+        # 예외 처리: 이미 인증된 사용자인 경우
+        if user_info:
+            info_message = '이미 인증된 사용자입니다.'
+            logger.info(info_message)
+            return {'status': "FAIL", 'value': {'error_message': info_message}}
+        
+        # 이미지 파일 경로를 설정합니다.
+        file_name = join(dirname(dirname(dirname(__file__))), 'temp', f'{user_id}.jpg')
+
+        # 이미지 다운로드
+        if os.getenv("FLASK_ENV") != 'test':
+            download_user_mobile_card(image_url, file_name)
+        
+        # 예외 처리: 유사도가 기준 미달인 경우
+        similarity = capture_similarity(test_image_file_path, file_name)
+        if similarity < 0.7:
+            warn_message = '올바르지 않은 이미지입니다. 다시 시도해주세요.'
+            logger.warn(f"{warn_message} - 유사도: {similarity}")
+            return {'status': "FAIL", 'value': {'error_message': f'{warn_message} 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
+        
+        # 이미지 로드
         img = Image.open(file_name)
         department = img_ocr(img)
 
-        # 학과 정보가 없는 경우
+        # 예외 처리: 학과 정보가 없는 경우
         if department is None:
-            warn_message = '학과 정보를 찾을 수 없습니다.'
-            logger.warn(warn_message)
-            return {'status': "FAIL", 'value': {'error_message': f'{warn_message} 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
-
-        # 유사도가 기준 미달인 경우
-        similarity = capture_similarity(test_image_file_path, file_name)
-        if similarity < 0.7 or department is None:
-            warn_message = '올바르지 않은 이미지입니다. 다시 시도해주세요.'
-            logger.warn(f"{warn_message} - 유사도: {similarity}, 학과: {department}")
-            return {'status': "FAIL", 'value': {'error_message': f'{warn_message} 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
-        
-        # 학과 정보 매칭
-        department_id = match_department(department)
-        if department_id is None:
-            warn_message = '학과 정보를 찾을 수 없습니다.'
-            logger.error(f"{warn_message} - 학과: {department}")
+            warn_message = '모바일 카드에서 학과 정보를 인식할 수 없습니다. 다시 시도해주세요.'
+            logger.error(warn_message)
             return {'status': "FAIL", 'value': {'error_message': f'{warn_message} 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
         
         # 사용자 정보 저장
         try:
             if os.getenv("FLASK_ENV") != 'test':
-                save_user_info(user_id, department_id)
+                save_user_info(user_id, match_department(department))
         except Exception as e:
             logger.error(e)
             Slack_Notifier().fail(e)
@@ -157,20 +160,6 @@ def verify_user_mobile_card(user_id, image_url):
     finally:
         if os.getenv("FLASK_ENV") != 'test':
             os.remove(file_name)
-
-# 학과 정보 매칭
-def match_department(department):
-    # department가 None인 경우와 매칭할 학과 정보가 없는 경우를 분리합니다.
-    if department is None:
-        return None
-
-    # 학과 정보 매칭
-    for row in supabase_response:
-        if row['department_ko'] == department:
-            return row['id']
-
-    # 매칭이 실패한 경우 None 반환
-    return None
 
 class CreateWelcomeMessage:
     def __init__(self, certification_result):
