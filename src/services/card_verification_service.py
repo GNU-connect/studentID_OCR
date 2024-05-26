@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 import gdown
 from torchvision import models
 import re
+from difflib import SequenceMatcher
 from src.common.utils.slack import Slack_Notifier
 from src.common.response.basic_card import Card
 import logging
@@ -49,6 +50,9 @@ def verify_user_mobile_card(user_id, image_url):
     
     # 이미지 OCR 함수
     def img_ocr(img):
+        def get_similarity(a, b):
+            return SequenceMatcher(None, a, b).ratio()
+        
         configs = [r'--oem 1 --psm 4', r'--oem 3 --psm 6', r'--oem 1 --psm 3']
         try:
             for config in configs:
@@ -58,9 +62,10 @@ def verify_user_mobile_card(user_id, image_url):
                 logger.info(f"{config} 옵션 ocr 결과\n{text_list}")
                 
                 for text in text_list:
-                    text = re.sub(r'\s+', '', text)
-                    if text in departments:
-                        return text
+                    for department in departments:
+                        similarity = get_similarity(text.replace(' ', ''), department)
+                        if similarity > 0.7:
+                            return department
         except Exception as e:
             logger.error(e)
     
@@ -110,14 +115,14 @@ def verify_user_mobile_card(user_id, image_url):
                 return row['id']
         return None
 
-    try:
-        user_info = supabase().table('kakao-user').select('id').eq('id', user_id).execute().data
-        # 예외 처리: 이미 인증된 사용자인 경우
-        if user_info:
-            info_message = '이미 인증된 사용자입니다.'
-            logger.info(info_message)
-            return {'status': "FAIL", 'value': {'error_message': info_message}}
+    user_info = supabase().table('kakao-user').select('id').eq('id', user_id).execute().data
+    # 예외 처리: 이미 인증된 사용자인 경우
+    if user_info:
+        info_message = '이미 인증된 사용자입니다.'
+        logger.info(info_message)
+        return {'status': "FAIL", 'value': {'error_message': info_message}}
         
+    try:
         # 이미지 파일 경로를 설정합니다.
         file_name = join(dirname(dirname(dirname(__file__))), 'temp', f'{user_id}.jpg')
 
@@ -154,7 +159,8 @@ def verify_user_mobile_card(user_id, image_url):
         Slack_Notifier().fail(e)
         return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
     finally:
-        if os.getenv("FLASK_ENV") != 'test':
+        if os.getenv("FLASK_ENV") != 'test' and user_info is None:
+            print(user_info)
             os.remove(file_name)
 
 class CreateWelcomeMessage:
