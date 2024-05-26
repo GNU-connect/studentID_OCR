@@ -90,9 +90,8 @@ def save_user_info(user_id, department_id):
     supabase().table('kakao-user').upsert(data).execute()
 
 # 사용자 정보 확인
-def download_user_mobile_card(value, file_name):
+def download_user_mobile_card(image_url, file_name):
     try:
-        image_url = value['secureUrls'][5:-1] # 이미지 URL
         response = requests.get(image_url)
         with open(file_name, 'wb') as f:
             f.write(response.content)
@@ -102,7 +101,6 @@ def download_user_mobile_card(value, file_name):
 # 사용자 모바일 카드 확인
 def verify_user_mobile_card(user_id, image_url):
     user_info = supabase().table('kakao-user').select('id').eq('id', user_id).execute().data
-
     # 예외 처리: 이미 인증된 사용자인 경우
     if user_info:
         warn_message = '이미 인증된 사용자입니다.'
