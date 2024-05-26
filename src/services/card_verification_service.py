@@ -142,13 +142,8 @@ def verify_user_mobile_card(user_id, image_url):
             return {'status': "FAIL", 'value': {'error_message': f'{warn_message} 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
         
         # 사용자 정보 저장
-        try:
-            if os.getenv("FLASK_ENV") != 'test':
-                save_user_info(user_id, match_department(department))
-        except Exception as e:
-            logger.error(e)
-            Slack_Notifier().fail(e)
-            return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
+        if os.getenv("FLASK_ENV") != 'test':
+            save_user_info(user_id, match_department(department))
 
         logger.info(f"[성공] 유저 id: {user_id} - {department} 인증 완료, 유사도: {similarity}")
         return {'status': "SUCCESS", 'value': {'department': department}}
