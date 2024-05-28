@@ -45,6 +45,28 @@ node {
             stage('Post Slack') {
                 slackSend(channel: '#build-notification', color: 'good', message: "빌드 성공: 야호! ${env.JOB_NAME} 서버 ${env.BUILD_NUMBER} 버전이 성공적으로 배포되었어!")
             }
+
+            stage('Notify Sentry of deployment') {
+                environment {
+                    SENTRY_AUTH_TOKEN = credentials('sentry-auth-token')
+                    SENTRY_ORG = 'connect-gnu'
+                    SENTRY_PROJECT = 'python-flask'
+                    SENTRY_ENVIRONMENT = 'production'
+                }
+                steps {
+                    // Install Sentry CLI
+                    sh 'command -v sentry-cli || curl -sL https://sentry.io/get-cli/ | bash'
+    
+                    sh '''
+                        export SENTRY_RELEASE=$(BUILD_NUMBER)
+                        sentry-cli releases new -p $SENTRY_PROJECT $SENTRY_RELEASE
+                        sentry-cli releases set-commits $SENTRY_RELEASE --auto
+                        sentry-cli releases files $SENTRY_RELEASE upload-sourcemaps /path/to/sourcemaps
+                        sentry-cli releases finalize $SENTRY_RELEASE
+                        sentry-cli releases deploys $SENTRY_RELEASE new -e $SENTRY_ENVIRONMENT
+                    '''
+                }
+            }
         } catch (Exception e) {
             slackSend(channel: '#build-notification', color: 'danger', message: "빌드 실패: 이런... ${env.JOB_NAME} 서버 ${env.BUILD_NUMBER} 버전 빌드에 실패했어 ㅜㅜ\n사유: ${e.getMessage()}")
             throw e
