@@ -66,7 +66,7 @@ def verify_user_mobile_card(user_id, image_url):
                 for text in text_list:
                     for department in departments:
                         similarity = get_similarity(text.replace(' ', ''), department)
-                        if similarity > 0.7:
+                        if similarity > 0.8:
                             return department
         except Exception as e:
             logger.error(e)
