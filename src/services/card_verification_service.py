@@ -1,3 +1,5 @@
+from src.models.college_dto import get_college_info_by_department_id
+from src.models.department_dto import get_department_name_by_id
 from src.common.utils.supabase import supabase
 import torchvision.transforms as T
 import pytesseract
@@ -11,10 +13,10 @@ from os.path import join, dirname
 from dotenv import load_dotenv
 import gdown
 from torchvision import models
-import re
 from difflib import SequenceMatcher
 from src.common.utils.slack import Slack_Notifier
 from src.common.response.basic_card import Card
+from src.models.user_dao import get_user_info, save_user_info
 import logging
 logger = logging.getLogger()
 
@@ -101,12 +103,6 @@ def verify_user_mobile_card(user_id, image_url):
             return similarity
         except Exception as e:
             logger.error(e)
-
-    # 데이터베이스에 사용자 정보 저장
-    def save_user_info(user_id, department_id):
-        # 'kakao-user' 테이블에 데이터 삽입
-        data = {'id': user_id, 'department_id': department_id}
-        supabase().table('kakao-user').upsert(data).execute()
     
     # 학과 정보 매칭
     def match_department(department):
@@ -115,10 +111,12 @@ def verify_user_mobile_card(user_id, image_url):
                 return row['id']
         return None
 
-    user_info = supabase().table('kakao-user').select('id').eq('id', user_id).execute().data
+    user_info = get_user_info(user_id)
     # 예외 처리: 이미 인증된 사용자인 경우
     if user_info:
-        info_message = '이미 인증된 사용자입니다.'
+        department_name = get_department_name_by_id(user_info[0]['department_id'])
+        college_name = get_college_info_by_department_id(user_info[0]['department_id'])['name_ko']
+        info_message = f'이미 {college_name} {department_name}로 인증된 상태야! 혹시라도 학과 정보가 잘못 등록된 것 같다면 관리자에게 문의해줘!'
         logger.info(info_message)
         return {'status': "FAIL", 'value': {'error_message': info_message}}
         
@@ -133,9 +131,9 @@ def verify_user_mobile_card(user_id, image_url):
         # 예외 처리: 유사도가 기준 미달인 경우
         similarity = capture_similarity(test_image_file_path, file_name)
         if similarity < 0.7:
-            warn_message = '올바르지 않은 이미지입니다. 다시 시도해주세요.'
+            warn_message = '올바르지 않은 이미지인 것 같아 ㅠㅠ'
             logger.warn(f"{warn_message}")
-            return {'status': "FAIL", 'value': {'error_message': f'{warn_message} 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
+            return {'status': "FAIL", 'value': {'error_message': f'{warn_message} 오류가 계속 발생하면 관리자에게 문의해줘!'}}
         
         # 이미지 로드
         img = Image.open(file_name)
@@ -143,21 +141,23 @@ def verify_user_mobile_card(user_id, image_url):
 
         # 예외 처리: 서비스에서 등록되지 않은 학과인 경우
         if department is None:
-            warn_message = '학과 정보를 확인할 수 없습니다. 상담직원에게 문의해주시면 확인해드리겠습니다.'
+            warn_message = '학과 정보를 확인할 수 없어 ㅠㅠ'
             logger.error(warn_message)
-            return {'status': "FAIL", 'value': {'error_message': f'{warn_message}'}}
+            return {'status': "FAIL", 'value': {'error_message': f'{warn_message} 오류가 계속 발생하면 관리자에게 문의해줘!'}}
         
+        department_id = match_department(department)
+        college_info = get_college_info_by_department_id(department_id)
         # 사용자 정보 저장
         if os.getenv("FLASK_ENV") != 'test':
-            save_user_info(user_id, match_department(department))
+            save_user_info(user_id, department_id)
 
         logger.info(f"[성공] 유저 id: {user_id} - {department} 인증 완료, 유사도: {similarity}")
-        return {'status': "SUCCESS", 'value': {'department': department}}
+        return {'status': "SUCCESS", 'value': {'department': department, 'college': college_info}}
     
     except Exception as e:
         logger.error(e)
         Slack_Notifier().fail(e)
-        return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했습니다. 지속적인 오류 발생 시 1:1 문의를 이용해주세요.'}}
+        return {'status': "FAIL", 'value': {'error_message': '이미지 처리 중 오류가 발생했어 ㅠㅠ 오류가 계속 발생하면 관리자에게 문의해줘!'}}
     finally:
         if os.getenv("FLASK_ENV") != 'test' and user_info is None:
             print(user_info)
@@ -167,6 +167,8 @@ class CreateWelcomeMessage:
     def __init__(self, certification_result):
         self.department = certification_result['value']['department'] if 'value' in certification_result \
                             and 'department' in certification_result['value'] else None
+        self.college = certification_result['value']['college'] if 'value' in certification_result \
+                            and 'college' in certification_result['value'] else None
         self.error_message = certification_result['value']['error_message'] if 'value' in certification_result \
                              and 'error_message' in certification_result['value'] else None
     
@@ -178,9 +180,12 @@ class CreateWelcomeMessage:
         return self.greet()
 
     def greet(self):
-        return Card(title=f"🎉 {self.department} 인증 완료", 
-                    description="커넥트 지누가 당신을 환영합니다 !",
-                    thumbnail="https://mir-s3-cdn-cf.behance.net/project_modules/disp/626139154238883.633e7921e8b21.gif").result_json()
+        # 단과대학 로고가 없는 경우 기본 이미지로 설정
+        return Card(
+            title=f"🎉 {self.college['name_ko']} {self.department} 인증 완료!",
+            description="이제 궁금한 정보들을 나한테 물어봐!",
+            thumbnail=self.college["thumbnail_url"]
+        ).result_json()
 
     def error(self):
         return Card(title="🥲 인증 실패", 
