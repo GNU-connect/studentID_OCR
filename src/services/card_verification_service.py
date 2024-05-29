@@ -183,8 +183,13 @@ class CreateWelcomeMessage:
         # 단과대학 로고가 없는 경우 기본 이미지로 설정
         return Card(
             title=f"🎉 {self.college['name_ko']} {self.department} 인증 완료!",
-            description="이제 궁금한 정보들을 나한테 물어봐!",
-            thumbnail=self.college["thumbnail_url"]
+            description="혹시라도 잘못 인증된 것 같다면 관리자에게 문의해줘!",
+            thumbnail=self.college["thumbnail_url"],
+            buttons=[{
+                "label": "학과가 잘못 인증된 것 같아요!",
+                "action": "webLink",
+                "webLinkUrl": "connectgnu2024@gmail.com"
+            }]
         ).result_json()
 
     def error(self):
