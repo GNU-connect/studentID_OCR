@@ -78,12 +78,12 @@ def verify_user_mobile_card(user_id, image_url):
                         if similarity >= 0.75:
                             return department
                 
-                # 3차: 유사도가 0.5 이상인 학과 탐색
+                # 3차: 유사도가 0.6 이상인 학과 탐색
                 # TODO: 영어영문학부 같이 하위 학과가 있는 경우 예외 처리 필요
                 for text in text_list:
                     for department in departments:
                         similarity = get_similarity(text.replace(' ', ''), department)
-                        if similarity >= 0.5:
+                        if similarity >= 0.6:
                             return department
 
         except Exception as e:
