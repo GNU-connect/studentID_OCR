@@ -71,11 +71,11 @@ def verify_user_mobile_card(user_id, image_url):
                         if text.replace(' ', '') == department:
                             return department
 
-                # 2차: 유사도가 0.8 이상인 학과 탐색
+                # 2차: 유사도가 0.75 이상인 학과 탐색
                 for text in text_list:
                     for department in departments:
                         similarity = get_similarity(text.replace(' ', ''), department)
-                        if similarity > 0.8:
+                        if similarity >= 0.75:
                             return department
                 
                 # 3차: 유사도가 0.5 이상인 학과 탐색
@@ -83,7 +83,7 @@ def verify_user_mobile_card(user_id, image_url):
                 for text in text_list:
                     for department in departments:
                         similarity = get_similarity(text.replace(' ', ''), department)
-                        if similarity > 0.5:
+                        if similarity >= 0.5:
                             return department
 
         except Exception as e:
