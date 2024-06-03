@@ -62,6 +62,8 @@ def verify_user_mobile_card(user_id, image_url):
                 texts = pytesseract.image_to_string(img, lang='kor', config=config)
                 text_list = [text.strip() for text in texts.split('\n')]
                 logger.info(f"{config} 옵션 ocr 결과\n{text_list}")
+
+                # TODO: text_list가 너무 많은 경우 예외 처리 필요
                 
                 # 1차: 학과명이 정확히 일치하는 경우 탐색
                 for text in text_list:
@@ -74,6 +76,14 @@ def verify_user_mobile_card(user_id, image_url):
                     for department in departments:
                         similarity = get_similarity(text.replace(' ', ''), department)
                         if similarity > 0.8:
+                            return department
+                
+                # 3차: 유사도가 0.5 이상인 학과 탐색
+                # TODO: 영어영문학부 같이 하위 학과가 있는 경우 예외 처리 필요
+                for text in text_list:
+                    for department in departments:
+                        similarity = get_similarity(text.replace(' ', ''), department)
+                        if similarity > 0.5:
                             return department
 
         except Exception as e:
