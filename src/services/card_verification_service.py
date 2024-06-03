@@ -63,11 +63,19 @@ def verify_user_mobile_card(user_id, image_url):
                 text_list = [text.strip() for text in texts.split('\n')]
                 logger.info(f"{config} 옵션 ocr 결과\n{text_list}")
                 
+                # 1차: 학과명이 정확히 일치하는 경우 탐색
+                for text in text_list:
+                    for department in departments:
+                        if text.replace(' ', '') == department:
+                            return department
+
+                # 2차: 유사도가 0.8 이상인 학과 탐색
                 for text in text_list:
                     for department in departments:
                         similarity = get_similarity(text.replace(' ', ''), department)
                         if similarity > 0.8:
                             return department
+
         except Exception as e:
             logger.error(e)
     
